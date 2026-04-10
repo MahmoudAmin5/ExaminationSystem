@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
@@ -18,13 +19,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="BuildingBlocks\Interfaces\" />
+    <Folder Include="BuildingBlocks\Exceptions\" />
+    <Folder Include="BuildingBlocks\Common\" />
+    <Folder Include="Domain\Entities\" />
+    <Folder Include="Domain\Enums\" />
     <Folder Include="Features\" />
+    <Folder Include="Infrastructure\Identity\" />
+    <Folder Include="Infrastructure\Persistence\Configurations\" />
+    <Folder Include="Infrastructure\Services\" />
     <Folder Include="Middlewares\GlobalExceptionMiddleware\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ExaminationSystem.Domain\ExaminationSystem.Domain.csproj" />
-    <ProjectReference Include="..\ExaminationSystem.Infrastructure\ExaminationSystem.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
