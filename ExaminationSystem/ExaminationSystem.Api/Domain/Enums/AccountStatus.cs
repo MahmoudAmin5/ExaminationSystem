@@ -3,6 +3,7 @@
     public enum AccountStatus
     {
         Pending,
-        Active
+        Active,
+        Locked
     }
 }
