@@ -1,6 +1,9 @@
-﻿namespace ExaminationSystem.Api.Domain.Entities
+﻿using ExaminationSystem.Api.BuildingBlocks.Interfaces;
+
+namespace ExaminationSystem.Api.Domain.Entities
 {
-    public abstract class BaseEntity<TKey>
+    
+    public abstract class BaseEntity<TKey> : ISoftDeletable
     {
         public TKey Id { get; set; } = default!; 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

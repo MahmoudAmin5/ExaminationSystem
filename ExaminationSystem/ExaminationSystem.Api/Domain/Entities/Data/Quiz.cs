@@ -7,7 +7,7 @@ namespace ExaminationSystem.Api.Domain.Entities.Data
         public string Title { get; set; } = string.Empty;
         public Guid DiplomaId { get; set; }
         public int DurationMinutes { get; set; }
-        public decimal PassScore { get; set; } = 60.00m;
+        public decimal PassScore { get; set; } 
         public int? MaxAttempts { get; set; }
         public ContentStatus Status { get; set; } = ContentStatus.Draft;
         public string? Instructions { get; set; }
