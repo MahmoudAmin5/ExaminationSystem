@@ -26,7 +26,6 @@
     <Folder Include="Features\" />
     <Folder Include="Infrastructure\Identity\" />
     <Folder Include="Infrastructure\Services\" />
-    <Folder Include="Middlewares\GlobalExceptionMiddleware\" />
   </ItemGroup>
 
 </Project>
