@@ -4,24 +4,16 @@
     {
         public T? Value { get; }
 
-        private Result(T value)
-            : base(true, Error.None)
+        protected internal Result(T? value, bool isSuccess, IEnumerable<Error> errors)
+       : base(isSuccess, errors)
         {
             Value = value;
         }
 
-        private Result(Error error)
-            : base(false, error)
-        {
-            Value = default;
-        }
-
-        public static Result<T> Success(T value) => new(value);
-
-        public new static Result<T> Failure(Error error) => new(error);
+        public static Result<T> Success(T value) => new(value, true, new[] { Error.None });
+        public new static Result<T> Failure(Error error) => new(default, false, new[] { error });
+        public new static Result<T> Failure(IEnumerable<Error> errors) => new(default, false, errors);
 
         public static implicit operator Result<T>(T value) => Success(value);
-
-        public static implicit operator Result<T>(Error error) => Failure(error);
     }
 }

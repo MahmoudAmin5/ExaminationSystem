@@ -4,24 +4,24 @@
     {
         public bool IsSuccess { get; }
         public bool IsFailure => !IsSuccess;
-        public Error Error { get; }
+        public IReadOnlyList<Error> Errors { get; }
 
-        protected Result(bool isSuccess, Error error)
+        protected Result(bool isSuccess, IEnumerable<Error> errors)
         {
-            if (isSuccess && error != Error.None)
-                throw new ArgumentException("Success result cannot have an error.", nameof(error));
+            var errorList = errors.ToList();
 
-            if (!isSuccess && error == Error.None)
-                throw new ArgumentException("Failure result must have an error.", nameof(error));
+            if (isSuccess && errorList.Any(e => e != Error.None))
+                throw new ArgumentException("Success result cannot have errors.", nameof(errors));
+
+            if (!isSuccess && !errorList.Any())
+                throw new ArgumentException("Failure result must have at least one error.", nameof(errors));
 
             IsSuccess = isSuccess;
-            Error = error;
+            Errors = errorList.AsReadOnly();
         }
 
-        public static Result Success() => new(true, Error.None);
-
-        public static Result Failure(Error error) => new(false, error);
-
-        public static implicit operator Result(Error error) => Failure(error);
+        public static Result Success() => new(true, new[] { Error.None });
+        public static Result Failure(Error error) => new(false, new[] { error });
+        public static Result Failure(IEnumerable<Error> errors) => new(false, errors);
     }
 }
