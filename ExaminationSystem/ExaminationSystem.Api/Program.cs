@@ -1,7 +1,10 @@
 using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
+using ExaminationSystem.Api.Domain.Entities.Account;
+using ExaminationSystem.Api.Infrastructure.Identity;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Infrastructure.Repositories;
 using ExaminationSystem.Api.Middlewares.GlobalExceptionMiddleware;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +18,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
