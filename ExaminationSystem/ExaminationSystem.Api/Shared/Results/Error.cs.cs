@@ -18,37 +18,16 @@
 
         public static readonly Error None = new(string.Empty, string.Empty, ErrorType.Unexpected);
 
-      
+        public static Error BadRequest(string code, string message) => new(code, message, ErrorType.BadRequest);
+        public static Error NotFound(string code, string message) => new(code, message, ErrorType.NotFound);
+        public static Error Validation(string code, string message) => new(code, message, ErrorType.Validation);
+        public static Error Conflict(string code, string message) => new(code, message, ErrorType.Conflict);
+        public static Error Unauthorized(string code, string message) => new(code, message, ErrorType.Unauthorized);
+        public static Error Forbidden(string code, string message) => new(code, message, ErrorType.Forbidden);
+        public static Error TooManyRequests(string code, string message) => new(code, message, ErrorType.TooManyRequests);
+        public static Error Gone(string code, string message) => new(code, message, ErrorType.Gone);
+        public static Error Unexpected(string code, string message) => new(code, message, ErrorType.Unexpected);
 
-        public static Error NotFound(string entity, object id) =>
-            new($"{entity}.NotFound",
-                $"{entity} with ID '{id}' was not found.",
-                ErrorType.NotFound);
-
-        public static Error Conflict(string entity, string reason) =>
-            new($"{entity}.Conflict",
-                reason,
-                ErrorType.Conflict);
-
-        public static Error Validation(string code, string message) =>
-            new(code,
-                message,
-                ErrorType.Validation);
-
-        public static Error Unauthorized(string message = "You are not authorized.") =>
-            new("Auth.Unauthorized",
-                message,
-                ErrorType.Unauthorized);
-
-        public static Error Forbidden(string message = "You don't have permission.") =>
-            new("Auth.Forbidden",
-                message,
-                ErrorType.Forbidden);
-
-        public static Error Unexpected(string message = "An unexpected error occurred.") =>
-            new("Error.Unexpected",
-                message,
-                ErrorType.Unexpected);
     }
 
 }
