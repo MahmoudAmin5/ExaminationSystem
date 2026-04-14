@@ -1,62 +1,52 @@
 ﻿using ExaminationSystem.Api.Shared.Results;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
-namespace ExaminationSystem.Api.Extensions
+namespace ExaminationSystem.Api.Extensions;
+
+public static class ResultExtensions
 {
-    public static class ResultExtensions
+   
+    public static IActionResult ToActionResult(this Result result)
     {
-       
-        public static IResult ToProblemDetails(this Result result)
+        if (result.IsSuccess)
         {
-            if (result.IsSuccess)
-                throw new InvalidOperationException(
-                    "Cannot convert a success result to problem details.");
-
-            return CreateProblemDetails(result.Error);
+            return new OkObjectResult(new { success = true, data = (object?)null });
         }
 
-        public static IResult ToProblemDetails<T>(this Result<T> result)
-        {
-            if (result.IsSuccess)
-                throw new InvalidOperationException(
-                    "Cannot convert a success result to problem details.");
+        return CreateErrorResult(result.Errors);
+    }
 
-            return CreateProblemDetails(result.Error);
+    
+    public static IActionResult ToActionResult<T>(this Result<T> result)
+    {
+        if (result.IsSuccess)
+        {
+            return new OkObjectResult(new { success = true, data = result.Value });
         }
 
-        private static IResult CreateProblemDetails(Error error)
-        {
-            var statusCode = GetStatusCode(error.Type);
+        return CreateErrorResult(result.Errors);
+    }
 
-            return Results.Problem(
-                statusCode: statusCode,
-                title: GetTitle(error.Type),
-                extensions: new Dictionary<string, object?>
-                {
-                {
-                    "errors", new[] { new { error.Code, error.Message } }
-                }
-                });
-        }
+    private static IActionResult CreateErrorResult(IReadOnlyCollection<Error> errors)
+    {
+        var firstError = errors.First();
 
-        private static int GetStatusCode(ErrorType type) => type switch
+        
+        var response = new
         {
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
-            ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Conflict => StatusCodes.Status409Conflict,
-            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
-            _ => StatusCodes.Status500InternalServerError
+            success = false,
+            data = (object?)null,
+            error = new
+            {
+                code = firstError.Code,
+                message = firstError.Message,
+                details = errors.Select(e => new { e.Code, e.Message }).ToList() 
+            }
         };
 
-        private static string GetTitle(ErrorType type) => type switch
+        return new ObjectResult(response)
         {
-            ErrorType.Validation => "Bad Request",
-            ErrorType.NotFound => "Not Found",
-            ErrorType.Conflict => "Conflict",
-            ErrorType.Unauthorized => "Unauthorized",
-            ErrorType.Forbidden => "Forbidden",
-            _ => "Internal Server Error"
+            StatusCode = (int)firstError.Type 
         };
     }
 }
