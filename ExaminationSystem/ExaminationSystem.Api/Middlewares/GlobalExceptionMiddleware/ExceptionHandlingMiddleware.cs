@@ -28,52 +28,51 @@ namespace ExaminationSystem.Api.Middlewares.GlobalExceptionMiddleware
             }
             catch (OperationCanceledException) when (httpContext.RequestAborted.IsCancellationRequested)
             {
-                
+
                 _logger.LogWarning(
                     "Request was cancelled. Path: {Path}",
                     httpContext.Request.Path);
 
-                httpContext.Response.StatusCode = 499; 
+                httpContext.Response.StatusCode = 499;
             }
+
             catch (Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    "Unhandled exception occurred. TraceId: {TraceId}, Path: {Path}, Method: {Method}",
-                    httpContext.TraceIdentifier,
-                    httpContext.Request.Path,
-                    httpContext.Request.Method);
-
+                _logger.LogError(ex, "Unhandled exception occurred. TraceId: {TraceId}", httpContext.TraceIdentifier);
                 await HandleExceptionAsync(httpContext, ex);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            httpContext.Response.ContentType = "application/problem+json";
-
-            var problemDetails = new ProblemDetails
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            var response = new
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "Internal Server Error",
-                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
-                Detail = "An unexpected error occurred while processing your request.",
-                Extensions =
-            {
-                ["traceId"] = httpContext.TraceIdentifier
-            }
+                success = false,
+                data = (object?)null,
+                error = new
+                {
+                    code = "InternalServerError",
+                    message = _env.IsDevelopment() ? exception.Message : "An unexpected error occurred while processing your request.",
+                    details = _env.IsDevelopment() ? exception.StackTrace : null
+                },
+                meta = new { traceId = context.TraceIdentifier }
             };
 
-            if (_env.IsDevelopment())
-            {
-                problemDetails.Extensions["exception"] = exception.Message;
-                problemDetails.Extensions["stackTrace"] = exception.StackTrace;
-                problemDetails.Extensions["innerException"] = exception.InnerException?.Message;
-            }
+            await context.Response.WriteAsJsonAsync(response);
 
-            await httpContext.Response.WriteAsJsonAsync(problemDetails);
+
         }
-    }
-}
+    } }
+
+
+
+
+
+
+        
+        
+
+      
 
