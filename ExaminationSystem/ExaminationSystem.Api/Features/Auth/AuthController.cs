@@ -1,5 +1,6 @@
 ﻿using ExaminationSystem.Api.Extensions;
 using ExaminationSystem.Api.Features.Auth.Register;
+using ExaminationSystem.Api.Features.Auth.VerifyOtp;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,5 +24,18 @@ namespace ExaminationSystem.Api.Features.Auth
             var result = await _mediator.Send(command);
             return result.ToActionResult();
         }
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpCommand command)
+        {
+            var result = await _mediator.Send(new VerifyOtpCommand(command.Email, command.Code));
+            return result.ToActionResult();
         }
+
+        [HttpPost("resend-otp")]
+        public async Task<IActionResult> ResendOtp(ResendOtpCommand command)
+        {
+            var result = await _mediator.Send(new ResendOtpCommand(command.Email));
+            return result.ToActionResult();
+        }
+    }
 }
