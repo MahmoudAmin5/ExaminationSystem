@@ -5,6 +5,8 @@ using ExaminationSystem.Api.Infrastructure.Identity;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Infrastructure.Repositories;
 using ExaminationSystem.Api.Middlewares.GlobalExceptionMiddleware;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +24,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthenticationServices(builder.Configuration);
 
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
 
 
 var app = builder.Build();
@@ -31,6 +38,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+   
 }
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();

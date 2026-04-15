@@ -61,17 +61,29 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
             {
                 switch (entry.State)
                 {
+                   
+
                     case EntityState.Added:
-                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int>)
+                      
+                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int> || entry.Entity is User)
                         {
-                            var createdAtProp = entry.Entity.GetType().GetProperty("CreatedAt");
-                            createdAtProp?.SetValue(entry.Entity, DateTime.UtcNow);
+                            entry.Entity.GetType().GetProperty("CreatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
                         }
                         break;
 
                     case EntityState.Modified:
-                        entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
+
+                        var createdAtProperty = entry.Entity.GetType().GetProperty("CreatedAt");
+                        if (createdAtProperty != null)
+                        {
+                            var createdAt = (DateTime)createdAtProperty.GetValue(entry.Entity)!;
+                            if (DateTime.UtcNow.Subtract(createdAt).TotalSeconds > 2)
+                            {
+                                entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
+                            }
+                        }
                         break;
+
 
                     case EntityState.Deleted:
                         

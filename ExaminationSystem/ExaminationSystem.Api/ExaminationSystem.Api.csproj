@@ -19,13 +19,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="BuildingBlocks\Behaviors\" />
     <Folder Include="BuildingBlocks\Exceptions\" />
     <Folder Include="BuildingBlocks\Common\" />
-    <Folder Include="Features\" />
     <Folder Include="Infrastructure\Services\" />
   </ItemGroup>
 

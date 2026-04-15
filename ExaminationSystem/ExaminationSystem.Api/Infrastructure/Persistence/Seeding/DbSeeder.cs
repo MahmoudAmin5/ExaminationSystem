@@ -13,35 +13,51 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             var studentRoleId = Guid.Parse("B2222222-2222-2222-2222-222222222222");
             var adminUserId = Guid.Parse("C3333333-3333-3333-3333-333333333333");
 
-           
+            
             modelBuilder.Entity<IdentityRole<Guid>>().HasData(
-                new IdentityRole<Guid> { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" },
-                new IdentityRole<Guid> { Id = studentRoleId, Name = "Student", NormalizedName = "STUDENT" }
+                new IdentityRole<Guid>
+                {
+                    Id = adminRoleId,
+                    Name = "Admin",
+                    NormalizedName = "ADMIN",
+                    ConcurrencyStamp = "D1111111-1111-1111-1111-111111111111"
+                },
+                new IdentityRole<Guid>
+                {
+                    Id = studentRoleId,
+                    Name = "Student",
+                    NormalizedName = "STUDENT",
+                    ConcurrencyStamp = "E2222222-2222-2222-2222-222222222222"
+                }
             );
 
-           
+            
             var admin = new User
             {
                 Id = adminUserId,
-                FullName = "Sara Maged",
-                UserName = "saramaged660",
-                Email = "saramaged660@gmail.com",
+                FullName = "Ahmed Ali",
+                UserName = "ahmedali660",
+                NormalizedUserName = "AHMEDALI660",
+                Email = "ahmedali660@gmail.com",
+                NormalizedEmail = "AHMEDALI660@GMAIL.COM",
                 EmailConfirmed = true,
                 Status = AccountStatus.Active,
                 Role = UserRole.Admin,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                CreatedAt = DateTime.UtcNow
+                SecurityStamp = "F3333333-3333-3333-3333-333333333333",
+                ConcurrencyStamp = "G4444444-4444-4444-4444-444444444444",
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                PasswordHash = "AQAAAAIAAYagAAAAEE6mfs5nlUwXENNWDXGrILwjOLAVq/UkeXlSCmM8qnKQVk6qO9H3AX8m7TgsHIa7Ag=="
             };
-
-           
-            var hasher = new PasswordHasher<User>();
-            admin.PasswordHash = hasher.HashPassword(admin, "Admin@Secure671");
 
             modelBuilder.Entity<User>().HasData(admin);
 
+          
             modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(
                 new IdentityUserRole<Guid> { UserId = adminUserId, RoleId = adminRoleId }
             );
         }
+
+       
+        
     }
 }

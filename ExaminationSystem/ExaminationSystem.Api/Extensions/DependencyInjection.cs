@@ -5,6 +5,7 @@ using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -63,6 +64,14 @@ namespace ExaminationSystem.Api.Extensions
             });
 
             services.AddScoped<JwtProvider>();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+          
 
             return services;
         }
