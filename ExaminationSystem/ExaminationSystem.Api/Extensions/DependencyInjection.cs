@@ -1,8 +1,10 @@
-﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
+﻿using ExaminationSystem.Api.BuildingBlocks.Interfaces;
+using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Account;
 using ExaminationSystem.Api.Infrastructure.Identity;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Infrastructure.Repositories;
+using ExaminationSystem.Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,8 +34,8 @@ namespace ExaminationSystem.Api.Extensions
             .AddDefaultTokenProviders();
 
             services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
+            services.AddScoped<IEmailService, EmailService>();
 
-           
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -1,5 +1,8 @@
-﻿using ExaminationSystem.Api.Domain.Entities.Account;
+﻿using ExaminationSystem.Api.BuildingBlocks.Interfaces;
+using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
+using ExaminationSystem.Api.Domain.Entities.Account;
 using ExaminationSystem.Api.Domain.Enums;
+using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Shared.Results;
 using FluentValidation;
 using MediatR;
@@ -11,11 +14,16 @@ namespace ExaminationSystem.Api.Features.Auth.Register
     {
         private readonly UserManager<User> _userManager;
         private readonly IValidator<RegisterUserCommand> _validator;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public RegisterUserHandler(UserManager<User> userManager, IValidator<RegisterUserCommand> validator)
+        public RegisterUserHandler(UserManager<User> userManager, IValidator<RegisterUserCommand> validator,
+        IUnitOfWork unitOfWork , IEmailService emailService)
         {
             _userManager = userManager;
             _validator = validator;
+            _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -56,7 +64,34 @@ namespace ExaminationSystem.Api.Features.Auth.Register
 
             await _userManager.AddToRoleAsync(user, "Student");
 
+          
+            var otpCode = new Random().Next(100000, 999999).ToString();
+
+          
+            var hashedOtp = BCrypt.Net.BCrypt.HashPassword(otpCode, 12);
+
+           
+            var otpEntry = new OtpCode
+            {
+                Email = user.Email!,
+                CodeHash = hashedOtp,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10), 
+                IsUsed = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _unitOfWork.Repository<OtpCode, int>().Add(otpEntry);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+
+            var emailBody = $"<h1>Welcome!</h1><p>Your verification code is: <b>{otpCode}</b></p>";
+            await _emailService.SendEmailAsync(user.Email!, "Verify Your Account", emailBody);
+
+
             return Result<Guid>.Success(user.Id);
+
+           
         }
     }
 }
