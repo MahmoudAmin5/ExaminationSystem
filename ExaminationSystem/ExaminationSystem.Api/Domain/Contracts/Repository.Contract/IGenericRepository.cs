@@ -21,6 +21,7 @@ namespace ExaminationSystem.Api.Domain.Contracts.Repository.Contract
         Task<bool> AnyAsync( Expression<Func<T, bool>> predicate,CancellationToken cancellationToken = default);
 
         Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null,CancellationToken cancellationToken = default);
+        IQueryable<T> AsNoTracking();
 
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
