@@ -65,7 +65,10 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
                 ? await _dbSet.CountAsync(cancellationToken)
                 : await _dbSet.CountAsync(predicate, cancellationToken);
         }
-
+        public IQueryable<T> AsNoTracking()
+        {
+            return _dbSet.AsNoTracking();
+        }
         public void Add(T entity) => _dbSet.Add(entity);
 
         public void AddRange(IEnumerable<T> entities) => _dbSet.AddRange(entities);

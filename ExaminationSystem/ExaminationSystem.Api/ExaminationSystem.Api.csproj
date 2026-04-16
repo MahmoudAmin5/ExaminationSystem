@@ -25,9 +25,12 @@
   <ItemGroup>
     <Folder Include="BuildingBlocks\Exceptions\" />
     <Folder Include="BuildingBlocks\Common\" />
-    <Folder Include="Features\" />
     <Folder Include="Infrastructure\Identity\" />
     <Folder Include="Infrastructure\Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Features\QuizEngine\StartQuiz\Dtos\StartQuizResponse.cs" />
   </ItemGroup>
 
 </Project>
