@@ -10,7 +10,7 @@ namespace ExaminationSystem.Api.Domain.Contracts.Repository.Contract
             where T : BaseEntity<TId>
             where TId : notnull;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-
+        IQuizAttemptRepository QuizAttempts { get; }
     }
 
 }
