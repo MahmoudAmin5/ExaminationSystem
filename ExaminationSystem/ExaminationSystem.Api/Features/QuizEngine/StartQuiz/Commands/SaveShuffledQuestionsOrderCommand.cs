@@ -12,11 +12,11 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
         IRequest<Result<ShuffleResult>>;
     public class SaveShuffledQuestionsOrderCommandHandler : IRequestHandler<SaveShuffledQuestionsOrderCommand, Result<ShuffleResult>>
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SaveShuffledQuestionsOrderCommandHandler(ApplicationDbContext context)
+        public SaveShuffledQuestionsOrderCommandHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
         public Task<Result<ShuffleResult>> Handle(SaveShuffledQuestionsOrderCommand request, CancellationToken cancellationToken)
         {
@@ -67,8 +67,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
                     Options = resultOptions
                 });
             }
-            _context.Set<AttemptQuestionOrder>().AddRange(questionOrders);
-            _context.Set<AttemptOptionOrder>().AddRange(optionOrders);
+            _unitOfWork.QuizAttempts.SaveShuffledOrders(questionOrders, optionOrders);
 
             return Task.FromResult(Result<ShuffleResult>.Success(new ShuffleResult
             {

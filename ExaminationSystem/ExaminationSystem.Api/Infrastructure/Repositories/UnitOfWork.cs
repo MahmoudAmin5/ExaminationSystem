@@ -1,5 +1,6 @@
 ﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities;
+using ExaminationSystem.Api.Domain.Entities.Data;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Collections.Concurrent;
@@ -10,7 +11,7 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly ConcurrentDictionary<string, object> _repositories;
-       
+        private IQuizAttemptRepository _quizAttempts;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -34,8 +35,9 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
         {
             return await _context.SaveChangesAsync(cancellationToken);
         }
+        public IQuizAttemptRepository QuizAttempts =>
+        _quizAttempts ??= new QuizAttemptRepository(_context);
 
-        
         public void Dispose()
         {
            _context.Dispose();
