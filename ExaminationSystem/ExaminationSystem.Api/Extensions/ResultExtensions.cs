@@ -21,7 +21,10 @@ public static class ResultExtensions
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(new { success = true, data = result.Value });
+            return new OkObjectResult(new { success = true, data = result.Value,
+                error = (object?)null,
+                meta = new { timestamp = DateTime.UtcNow }
+            });
         }
 
         return CreateErrorResult(result.Errors);

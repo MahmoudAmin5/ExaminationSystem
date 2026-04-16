@@ -2,6 +2,8 @@
 using ExaminationSystem.Api.Domain.Entities;
 using ExaminationSystem.Api.Domain.Entities.Account;
 using ExaminationSystem.Api.Domain.Entities.Data;
+using ExaminationSystem.Api.Domain.Enums;
+using ExaminationSystem.Api.Infrastructure.Persistence.Seeding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -33,14 +35,14 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 1. مهم جداً لعمل جداول الـ Identity
+           
             base.OnModelCreating(modelBuilder);
 
-            // 2. تطبيق جميع ملفات الـ Configurations (الـ Fluent API)
+          
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-            // 3. تطبيق فلتر الـ Soft Delete يدوياً (سهل الفهم والشرح)
-            // هذا الكود يضمن أن أي استعلام يرجع فقط البيانات التي IsDeleted == false
+            DbSeeder.SeedData(modelBuilder);
+
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<Diploma>().HasQueryFilter(d => !d.IsDeleted);
             modelBuilder.Entity<Quiz>().HasQueryFilter(q => !q.IsDeleted);
@@ -50,10 +52,8 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
             modelBuilder.Entity<QuizAttempt>().HasQueryFilter(a => !a.IsDeleted);
             modelBuilder.Entity<AttemptAnswer>().HasQueryFilter(a => !a.IsDeleted);
             modelBuilder.Entity<OtpCode>().HasQueryFilter(o => !o.IsDeleted);
+
         }
-
-       
-
        
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -61,17 +61,29 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
             {
                 switch (entry.State)
                 {
+                   
+
                     case EntityState.Added:
-                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int>)
+                      
+                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int> || entry.Entity is User)
                         {
-                            var createdAtProp = entry.Entity.GetType().GetProperty("CreatedAt");
-                            createdAtProp?.SetValue(entry.Entity, DateTime.UtcNow);
+                            entry.Entity.GetType().GetProperty("CreatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
                         }
                         break;
 
                     case EntityState.Modified:
-                        entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
+
+                        var createdAtProperty = entry.Entity.GetType().GetProperty("CreatedAt");
+                        if (createdAtProperty != null)
+                        {
+                            var createdAt = (DateTime)createdAtProperty.GetValue(entry.Entity)!;
+                            if (DateTime.UtcNow.Subtract(createdAt).TotalSeconds > 2)
+                            {
+                                entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
+                            }
+                        }
                         break;
+
 
                     case EntityState.Deleted:
                         
