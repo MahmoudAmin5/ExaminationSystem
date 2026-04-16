@@ -2,6 +2,7 @@
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -18,7 +19,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine
         {
             _mediator = mediator;
         }
-
+        [Authorize(Roles = "Student")]
         [HttpPost("{quizId:guid}/start")]
         [ProducesResponseType(typeof(StartQuizResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
