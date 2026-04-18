@@ -3,6 +3,7 @@ using ExaminationSystem.Api.Features.QuizEngine.StartQuiz;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Queries;
+using ExaminationSystem.Api.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -42,8 +43,10 @@ namespace ExaminationSystem.Api.Features.QuizEngine
             return result.ToActionResult();
         }
 
-        [Authorize(Roles = "Student")]
+        
         [HttpGet("{attemptId:guid}/timer")]
+        [ServiceFilter(typeof(AttemptDeadlineFilter))]
+        [Authorize(Roles = "Student")]
         [ProducesResponseType(typeof(AttemptTimerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

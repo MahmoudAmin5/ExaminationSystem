@@ -1,6 +1,7 @@
 ﻿using ExaminationSystem.Api.BuildingBlocks.Interfaces;
 using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Account;
+using ExaminationSystem.Api.Filters;
 using ExaminationSystem.Api.Infrastructure.Identity;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using ExaminationSystem.Api.Infrastructure.Repositories;
@@ -38,6 +39,7 @@ namespace ExaminationSystem.Api.Extensions
 
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<AttemptDeadlineFilter>();
 
             return services;
         }
