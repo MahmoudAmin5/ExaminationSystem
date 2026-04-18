@@ -1,6 +1,8 @@
 ﻿using ExaminationSystem.Api.Extensions;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
+using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos;
+using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +21,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine
         {
             _mediator = mediator;
         }
+
         [Authorize(Roles = "Student")]
         [HttpPost("{quizId:guid}/start")]
         [ProducesResponseType(typeof(StartQuizResponse), StatusCodes.Status200OK)]
@@ -35,6 +38,22 @@ namespace ExaminationSystem.Api.Features.QuizEngine
 
             if (result.IsFailure)
                 return result.ToActionResult();
+
+            return result.ToActionResult();
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpGet("{attemptId:guid}/timer")]
+        [ProducesResponseType(typeof(AttemptTimerDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> GetTimer([FromRoute] Guid attemptId,CancellationToken cancellationToken)
+        {
+            var studentId = Guid.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await _mediator.Send(
+                new GetAttemptTimerQuery(attemptId, studentId), cancellationToken);
 
             return result.ToActionResult();
         }
