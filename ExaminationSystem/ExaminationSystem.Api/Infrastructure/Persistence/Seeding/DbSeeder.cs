@@ -7,57 +7,34 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
 {
     public static class DbSeeder
     {
-        public static void SeedData(ModelBuilder modelBuilder)
+
+        public static async Task SeedAsync(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)
         {
-            var adminRoleId = Guid.Parse("A1111111-1111-1111-1111-111111111111");
-            var studentRoleId = Guid.Parse("B2222222-2222-2222-2222-222222222222");
-            var adminUserId = Guid.Parse("C3333333-3333-3333-3333-333333333333");
-
             
-            modelBuilder.Entity<IdentityRole<Guid>>().HasData(
-                new IdentityRole<Guid>
-                {
-                    Id = adminRoleId,
-                    Name = "Admin",
-                    NormalizedName = "ADMIN",
-                    ConcurrencyStamp = "D1111111-1111-1111-1111-111111111111"
-                },
-                new IdentityRole<Guid>
-                {
-                    Id = studentRoleId,
-                    Name = "Student",
-                    NormalizedName = "STUDENT",
-                    ConcurrencyStamp = "E2222222-2222-2222-2222-222222222222"
-                }
-            );
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "Admin" });
 
-            
-            var admin = new User
+            if (!await roleManager.RoleExistsAsync("Student"))
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "Student" });
+
+           
+            var adminEmail = "saramaged660@gmail.com";
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                Id = adminUserId,
-                FullName = "Ahmed Ali",
-                UserName = "ahmedali660",
-                NormalizedUserName = "AHMEDALI660",
-                Email = "ahmedali660@gmail.com",
-                NormalizedEmail = "AHMEDALI660@GMAIL.COM",
-                EmailConfirmed = true,
-                Status = AccountStatus.Active,
-                Role = UserRole.Admin,
-                SecurityStamp = "F3333333-3333-3333-3333-333333333333",
-                ConcurrencyStamp = "G4444444-4444-4444-4444-444444444444",
-                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                PasswordHash = "AQAAAAIAAYagAAAAEE6mfs5nlUwXENNWDXGrILwjOLAVq/UkeXlSCmM8qnKQVk6qO9H3AX8m7TgsHIa7Ag=="
-            };
+                var admin = new User
+                {
+                    Id = Guid.NewGuid(),
+                    FullName = "Sara Maged",
+                    UserName = "saramaged660",
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    Status = AccountStatus.Active,
+                    Role = UserRole.Admin
+                };
 
-            modelBuilder.Entity<User>().HasData(admin);
-
-          
-            modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(
-                new IdentityUserRole<Guid> { UserId = adminUserId, RoleId = adminRoleId }
-            );
+                await userManager.CreateAsync(admin, "Admin@Secure671");
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
         }
-
-       
-        
     }
 }
