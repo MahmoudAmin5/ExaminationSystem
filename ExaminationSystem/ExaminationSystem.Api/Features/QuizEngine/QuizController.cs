@@ -3,6 +3,8 @@ using ExaminationSystem.Api.Features.QuizEngine.StartQuiz;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Queries;
+using ExaminationSystem.Api.Features.QuizEngine.ViewResult;
+using ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos;
 using ExaminationSystem.Api.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +59,24 @@ namespace ExaminationSystem.Api.Features.QuizEngine
 
             var result = await _mediator.Send(
                 new GetAttemptTimerQuery(attemptId, studentId), cancellationToken);
+
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{attemptId:guid}/results")]
+        [ProducesResponseType(typeof(AttemptResultDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetResults([FromRoute] Guid attemptId, CancellationToken cancellationToken)
+        {
+            var requesterId = Guid.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var requesterRole = User.FindFirstValue(ClaimTypes.Role) ?? "Student";
+
+            var result = await _mediator.Send(
+                new ViewResultsQuery(attemptId, requesterId, requesterRole),
+                cancellationToken);
 
             return result.ToActionResult();
         }
