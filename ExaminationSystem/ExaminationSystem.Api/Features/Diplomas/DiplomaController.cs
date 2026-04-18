@@ -18,7 +18,7 @@ namespace ExaminationSystem.Api.Features.Diplomas
         [HttpGet]
         public async Task<IActionResult> GetDiplomas([FromQuery] int page = 1, [FromQuery] int perPage = 10)
         {
-            var result = await _mediator.Send(new GetDiplomas(page, perPage));
+            var result = await _mediator.Send(new GetDiplomasQuery(page, perPage));
             return result.ToActionResult();
         }
     }
