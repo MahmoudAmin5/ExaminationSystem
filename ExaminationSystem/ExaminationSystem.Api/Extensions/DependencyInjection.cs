@@ -39,6 +39,9 @@ namespace ExaminationSystem.Api.Extensions
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddHttpContextAccessor();
+
+
             return services;
         }
 
@@ -73,7 +76,6 @@ namespace ExaminationSystem.Api.Extensions
                 options.SuppressModelStateInvalidFilter = true;
             });
 
-          
 
             return services;
         }
