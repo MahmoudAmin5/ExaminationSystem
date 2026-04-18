@@ -1,4 +1,6 @@
 ﻿using ExaminationSystem.Api.Extensions;
+using ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion;
+using ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos;
@@ -76,6 +78,30 @@ namespace ExaminationSystem.Api.Features.QuizEngine
 
             var result = await _mediator.Send(
                 new ViewResultsQuery(attemptId, requesterId, requesterRole),
+                cancellationToken);
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{attemptId:guid}/answer")]
+        [Authorize(Roles = "Student")]
+        [ProducesResponseType(typeof(AnswerQuestionResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status410Gone)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AnswerQuestion(
+    [FromRoute] Guid attemptId,
+    [FromBody] AnswerQuestionRequestDto request,
+    CancellationToken cancellationToken)
+        {
+            var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await _mediator.Send(
+                new AnswerQuestionOrchestratorCommand(
+                    attemptId,
+                    studentId,
+                    request.QuestionId,
+                    request.SelectedOptionId),
                 cancellationToken);
 
             return result.ToActionResult();
