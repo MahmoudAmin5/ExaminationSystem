@@ -10,9 +10,9 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ExaminationSystem.Api.Features.Diplomas
 {
-    public record GetDiplomasQuery(int PageNumber, int PageSize) : IRequest<Result<PaginatedList<DiplomaDto>>>;
+    public record GetDiplomas(int PageNumber, int PageSize) : IRequest<Result<PaginatedList<DiplomaDto>>>;
 
-    public class GetDiplomasHandler : IRequestHandler<GetDiplomasQuery, Result<PaginatedList<DiplomaDto>>>
+    public class GetDiplomasHandler : IRequestHandler<GetDiplomas, Result<PaginatedList<DiplomaDto>>>
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly ICurrentUserService _CurrentUser;
@@ -26,7 +26,7 @@ namespace ExaminationSystem.Api.Features.Diplomas
 
        
 
-        public async Task<Result<PaginatedList<DiplomaDto>>> Handle(GetDiplomasQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginatedList<DiplomaDto>>> Handle(GetDiplomas request, CancellationToken cancellationToken)
         {
             
             var studentId = _CurrentUser.UserId;
