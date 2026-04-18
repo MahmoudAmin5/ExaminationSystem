@@ -43,6 +43,7 @@ namespace ExaminationSystem.Api.Extensions
 
             services.AddHttpContextAccessor();
 
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }
