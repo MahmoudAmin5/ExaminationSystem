@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
 {
-    public static class DbSeeder
+    public static class IdentitySeeder
     {
 
         public static async Task SeedAsync(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)

@@ -1,4 +1,5 @@
 ﻿using ExaminationSystem.Api.Extensions;
+using ExaminationSystem.Api.Features.Diplomas.DiplomasQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ExaminationSystem.Api.Features.Diplomas
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Student")]
+    
     [ApiController]
     public class DiplomaController : ControllerBase
     {

@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace ExaminationSystem.Api.Features.Diplomas
+namespace ExaminationSystem.Api.Features.Diplomas.DiplomasQueries
 {
     public record GetDiplomasQuery(int PageNumber, int PageSize) : IRequest<Result<PaginatedList<DiplomaDto>>>;
 
