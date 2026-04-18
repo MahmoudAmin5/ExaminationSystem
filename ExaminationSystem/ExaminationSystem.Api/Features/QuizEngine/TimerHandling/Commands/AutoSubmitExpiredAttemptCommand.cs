@@ -8,6 +8,7 @@ using MediatR;
 namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Commands
 {
     public record AutoSubmitExpiredAttemptCommand(Guid AttemptId) : IRequest<Result<AutoSubmitDto>>;
+
     public class AutoSubmitExpiredAttemptCommandHandler : IRequestHandler<AutoSubmitExpiredAttemptCommand, Result<AutoSubmitDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -19,43 +20,45 @@ namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Commands
 
         public async Task<Result<AutoSubmitDto>> Handle(AutoSubmitExpiredAttemptCommand request, CancellationToken cancellationToken)
         {
-            var attempt = await _unitOfWork.Repository<QuizAttempt, Guid>().GetByIdAsync(request.AttemptId, cancellationToken);
+            var attempt = await _unitOfWork.Repository<QuizAttempt, Guid>()
+                .GetByIdAsync(request.AttemptId, cancellationToken);
 
             if (attempt == null)
             {
-                return Result<AutoSubmitDto>.Failure(Error.NotFound("AttemptNotFound", $"No quiz attempt found with ID {request.AttemptId}"));
+                return Result<AutoSubmitDto>.Failure(
+                    Error.NotFound("AttemptNotFound", $"No quiz attempt found with ID {request.AttemptId}"));
             }
+
             if (DateTime.UtcNow < attempt.Deadline)
             {
-                return Result<AutoSubmitDto>.Failure(Error.BadRequest("AttemptNotExpired", $"Quiz attempt with ID {request.AttemptId} has not expired yet"));
+                return Result<AutoSubmitDto>.Failure(
+                    Error.BadRequest("AttemptNotExpired", $"Quiz attempt with ID {request.AttemptId} has not expired yet"));
             }
+            var answers = await _unitOfWork.Repository<AttemptAnswer, int>()
+                .FindAsync(a => a.AttemptId == attempt.Id, cancellationToken);
+            var quiz = await _unitOfWork.Repository<Quiz, Guid>()
+                .GetByIdAsync(attempt.QuizId, cancellationToken);
 
-            var answers = await _unitOfWork.Repository<AttemptAnswer, int>().FindAsync(a => a.AttemptId == attempt.Id, cancellationToken);
+            var questions = await _unitOfWork.Repository<Question, Guid>()
+                .FindAsync(q => q.QuizId == attempt.QuizId, cancellationToken);
 
-            var quiz = await _unitOfWork.Repository<Quiz, Guid>().GetByIdAsync(attempt.QuizId, cancellationToken);
+            var questionIds = questions.Select(q => q.Id).ToList();
+            var correctOptions = await _unitOfWork.Repository<AnswerOption, Guid>()
+                .FindAsync(o => questionIds.Contains(o.QuestionId) && o.IsCorrect, cancellationToken);
 
-            var Questions = await _unitOfWork.Repository<Question, Guid>().FindAsync(q => q.QuizId == attempt.QuizId, cancellationToken);
-
-            var QuestionIds = Questions.Select(q => q.Id).ToList();
-
-            var correctOptions = await _unitOfWork.Repository<AnswerOption, Guid>().FindAsync(o => QuestionIds.Contains(o.QuestionId) && o.IsCorrect, cancellationToken);
-
-            var questionCount = Questions.Count();
+            var questionCount = questions.Count();
             var correctCount = 0;
 
             foreach (var answer in answers)
             {
-                var isCorrect = correctOptions
-                .Any(co => co.Id == answer.SelectedOptionId);
-
+                var isCorrect = correctOptions.Any(co => co.Id == answer.SelectedOptionId);
                 answer.IsCorrect = isCorrect;
                 if (isCorrect) correctCount++;
-
             }
 
             var score = questionCount > 0
-            ? Math.Round((decimal)correctCount / questionCount * 100, 2)
-            : 0;
+                ? Math.Round((decimal)correctCount / questionCount * 100, 2)
+                : 0;
 
             var passed = score >= quiz.PassScore;
 
@@ -66,18 +69,16 @@ namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Commands
 
             _unitOfWork.Repository<QuizAttempt, Guid>().Update(attempt);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             var response = new AutoSubmitDto
             {
-                WasAutoSubmitted = true,
-                Score = score,
                 AttemptId = attempt.Id,
-                IsPassed = passed,
-                SubmittedAt = attempt.SubmittedAt.Value
+                SubmittedAt = attempt.SubmittedAt.Value,
+                WasAutoSubmitted = true,
+                Score = score,           
+                IsPassed = passed
             };
 
             return Result<AutoSubmitDto>.Success(response);
         }
     }
-
 }
