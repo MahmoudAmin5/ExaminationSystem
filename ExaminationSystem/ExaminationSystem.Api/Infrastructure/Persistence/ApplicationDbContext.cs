@@ -3,6 +3,7 @@ using ExaminationSystem.Api.Domain.Entities;
 using ExaminationSystem.Api.Domain.Entities.Account;
 using ExaminationSystem.Api.Domain.Entities.Data;
 using ExaminationSystem.Api.Domain.Enums;
+using ExaminationSystem.Api.Infrastructure.Persistence.Extensions;
 using ExaminationSystem.Api.Infrastructure.Persistence.Seeding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -41,48 +42,36 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
           
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-            DbSeeder.SeedData(modelBuilder);
-
+            modelBuilder.ApplyGlobalQueryFilters();
            
-
         }
-       
+
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<ISoftDeletable>())
             {
-                switch (entry.State)
+                var now = DateTime.UtcNow;
+                if (entry.State == EntityState.Added)
                 {
-                   
-
-                    case EntityState.Added:
-                      
-                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int> || entry.Entity is User)
-                        {
-                            entry.Entity.GetType().GetProperty("CreatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
-                        }
-                        break;
-
-                    case EntityState.Modified:
-
-                        var createdAtProperty = entry.Entity.GetType().GetProperty("CreatedAt");
-                        if (createdAtProperty != null)
-                        {
-                            var createdAt = (DateTime)createdAtProperty.GetValue(entry.Entity)!;
-                            if (DateTime.UtcNow.Subtract(createdAt).TotalSeconds > 2)
-                            {
-                                entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
-                            }
-                        }
-                        break;
-
-
-                    case EntityState.Deleted:
-                        
-                        entry.State = EntityState.Modified;
-                        entry.Entity.IsDeleted = true;
-                        entry.Entity.DeletedAt = DateTime.UtcNow;
-                        break;
+                    entry.Property("CreatedAt").CurrentValue = now;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                 
+                  
+                    if (entry.Property("CreatedAt").CurrentValue is DateTime createdAt)
+                    {
+                        //  to check if more than 2 seconds passed since creation
+                        if (now.Subtract(createdAt).TotalSeconds > 2)
+                            entry.Property("UpdatedAt").CurrentValue = now;
+                    }
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = now;
                 }
             }
             return base.SaveChangesAsync(cancellationToken);
