@@ -29,6 +29,7 @@
     <Folder Include="BuildingBlocks\Behaviors\" />
     <Folder Include="BuildingBlocks\Exceptions\" />
     <Folder Include="BuildingBlocks\Common\" />
+    <Folder Include="Features\Diplomas\Queries\" />
     <Folder Include="Infrastructure\Identity\" />
     <Folder Include="Infrastructure\Services\" />
   </ItemGroup>
