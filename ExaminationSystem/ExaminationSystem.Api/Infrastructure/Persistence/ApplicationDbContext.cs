@@ -3,6 +3,7 @@ using ExaminationSystem.Api.Domain.Entities;
 using ExaminationSystem.Api.Domain.Entities.Account;
 using ExaminationSystem.Api.Domain.Entities.Data;
 using ExaminationSystem.Api.Domain.Enums;
+using ExaminationSystem.Api.Infrastructure.Persistence.Extensions;
 using ExaminationSystem.Api.Infrastructure.Persistence.Seeding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -41,56 +42,36 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence
           
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-            DbSeeder.SeedData(modelBuilder);
-
-            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
-            modelBuilder.Entity<Diploma>().HasQueryFilter(d => !d.IsDeleted);
-            modelBuilder.Entity<Quiz>().HasQueryFilter(q => !q.IsDeleted);
-            modelBuilder.Entity<Question>().HasQueryFilter(q => !q.IsDeleted);
-            modelBuilder.Entity<AnswerOption>().HasQueryFilter(o => !o.IsDeleted);
-            modelBuilder.Entity<Enrollment>().HasQueryFilter(e => !e.IsDeleted);
-            modelBuilder.Entity<QuizAttempt>().HasQueryFilter(a => !a.IsDeleted);
-            modelBuilder.Entity<AttemptAnswer>().HasQueryFilter(a => !a.IsDeleted);
-            modelBuilder.Entity<OtpCode>().HasQueryFilter(o => !o.IsDeleted);
-
+            modelBuilder.ApplyGlobalQueryFilters();
+           
         }
-       
+
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<ISoftDeletable>())
             {
-                switch (entry.State)
+                var now = DateTime.UtcNow;
+                if (entry.State == EntityState.Added)
                 {
-                   
-
-                    case EntityState.Added:
-                      
-                        if (entry.Entity is BaseEntity<Guid> or BaseEntity<int> || entry.Entity is User)
-                        {
-                            entry.Entity.GetType().GetProperty("CreatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
-                        }
-                        break;
-
-                    case EntityState.Modified:
-
-                        var createdAtProperty = entry.Entity.GetType().GetProperty("CreatedAt");
-                        if (createdAtProperty != null)
-                        {
-                            var createdAt = (DateTime)createdAtProperty.GetValue(entry.Entity)!;
-                            if (DateTime.UtcNow.Subtract(createdAt).TotalSeconds > 2)
-                            {
-                                entry.Entity.GetType().GetProperty("UpdatedAt")?.SetValue(entry.Entity, DateTime.UtcNow);
-                            }
-                        }
-                        break;
-
-
-                    case EntityState.Deleted:
-                        
-                        entry.State = EntityState.Modified;
-                        entry.Entity.IsDeleted = true;
-                        entry.Entity.DeletedAt = DateTime.UtcNow;
-                        break;
+                    entry.Property("CreatedAt").CurrentValue = now;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                 
+                  
+                    if (entry.Property("CreatedAt").CurrentValue is DateTime createdAt)
+                    {
+                        //  to check if more than 2 seconds passed since creation
+                        if (now.Subtract(createdAt).TotalSeconds > 2)
+                            entry.Property("UpdatedAt").CurrentValue = now;
+                    }
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = now;
                 }
             }
             return base.SaveChangesAsync(cancellationToken);

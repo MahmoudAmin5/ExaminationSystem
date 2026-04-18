@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExaminationSystem.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260415002759_FinalAuthSetup_Fixed")]
-    partial class FinalAuthSetup_Fixed
+    [Migration("20260418062724_Initial_DB")]
+    partial class Initial_DB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,29 +247,6 @@ namespace ExaminationSystem.Api.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c3333333-3333-3333-3333-333333333333"),
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "G4444444-4444-4444-4444-444444444444",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "ahmedali660@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "Ahmed Ali",
-                            IsDeleted = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "AHMEDALI660@GMAIL.COM",
-                            NormalizedUserName = "AHMEDALI660",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE6mfs5nlUwXENNWDXGrILwjOLAVq/UkeXlSCmM8qnKQVk6qO9H3AX8m7TgsHIa7Ag==",
-                            PhoneNumberConfirmed = false,
-                            Role = 1,
-                            SecurityStamp = "F3333333-3333-3333-3333-333333333333",
-                            Status = 1,
-                            TwoFactorEnabled = false,
-                            UserName = "ahmedali660"
-                        });
                 });
 
             modelBuilder.Entity("ExaminationSystem.Api.Domain.Entities.Account.UserActivityLog", b =>
@@ -677,22 +654,6 @@ namespace ExaminationSystem.Api.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a1111111-1111-1111-1111-111111111111"),
-                            ConcurrencyStamp = "D1111111-1111-1111-1111-111111111111",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = new Guid("b2222222-2222-2222-2222-222222222222"),
-                            ConcurrencyStamp = "E2222222-2222-2222-2222-222222222222",
-                            Name = "Student",
-                            NormalizedName = "STUDENT"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -777,13 +738,6 @@ namespace ExaminationSystem.Api.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = new Guid("c3333333-3333-3333-3333-333333333333"),
-                            RoleId = new Guid("a1111111-1111-1111-1111-111111111111")
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
