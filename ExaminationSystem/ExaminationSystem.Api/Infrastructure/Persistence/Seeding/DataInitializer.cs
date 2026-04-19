@@ -11,7 +11,9 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             var diplomaRepo = unitOfWork.Repository<Diploma, Guid>();
             var webDevDiplomaId = Guid.Parse("D1111111-1111-1111-1111-111111111111");
 
-           
+            var enrollmentRepo = unitOfWork.Repository<Enrollment, int>();
+            var studentId = Guid.Parse("C3333333-3333-3333-3333-333333333333");
+
             var exists = await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId);
             if (exists) return;
 
@@ -45,7 +47,9 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                 CreatedAt = DateTime.UtcNow
             });
 
-            
+            enrollmentRepo.Add(new Enrollment { StudentId = studentId, DiplomaId = webDevDiplomaId });
+
+
             diplomaRepo.Add(diploma);
             await unitOfWork.SaveChangesAsync();
         }
