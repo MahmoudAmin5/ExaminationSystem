@@ -1,11 +1,11 @@
-﻿namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos
-{
-    public class AutoSubmitDto
+﻿    namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Dtos
     {
-        public Guid AttemptId { get; set; }
-        public DateTime SubmittedAt { get; set; }
-        public bool WasAutoSubmitted { get; set; }
-        public decimal? Score { get; set; }
-        public bool IsPassed { get; set; }
+        public class AutoSubmitDto
+        {
+            public Guid AttemptId { get; set; }
+            public DateTime SubmittedAt { get; set; }
+            public bool WasAutoSubmitted { get; set; }
+            public decimal? Score { get; set; }
+            public bool IsPassed { get; set; }
+        }
     }
-}
