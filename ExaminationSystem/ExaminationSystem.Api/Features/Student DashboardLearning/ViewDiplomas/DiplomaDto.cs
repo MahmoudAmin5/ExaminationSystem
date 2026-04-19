@@ -1,4 +1,4 @@
-﻿namespace ExaminationSystem.Api.Features.Diplomas.Dtos
+﻿namespace ExaminationSystem.Api.Features.Diplomas.ViewDiplomas
 {
     public record DiplomaDto(
       Guid Id,
