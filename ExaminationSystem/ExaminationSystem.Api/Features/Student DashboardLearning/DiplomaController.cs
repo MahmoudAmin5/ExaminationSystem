@@ -1,5 +1,6 @@
 ﻿using ExaminationSystem.Api.Extensions;
 using ExaminationSystem.Api.Features.Diplomas.ViewDiplomas;
+using ExaminationSystem.Api.Features.Student_DashboardLearning.ViewQuizzesByDiploma;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +21,14 @@ namespace ExaminationSystem.Api.Features.Diplomas
         public async Task<IActionResult> GetDiplomas([FromQuery] int page = 1, [FromQuery] int perPage = 10)
         {
             var result = await _mediator.Send(new GetDiplomasQuery(page, perPage));
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{id}/quizzes")]
+        public async Task<IActionResult> GetQuizzes(Guid id)
+        {
+           
+            var result = await _mediator.Send(new GetQuizzesByDiplomaQuery(id));
             return result.ToActionResult();
         }
     }
