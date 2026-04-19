@@ -2,13 +2,11 @@
 using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Data;
 using ExaminationSystem.Api.Domain.Enums;
-using ExaminationSystem.Api.Features.Diplomas.DiplomasQueries;
-using ExaminationSystem.Api.Features.Diplomas.Dtos;
 using ExaminationSystem.Api.Shared.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExaminationSystem.Api.Features.Diplomas.DiplomasHandlers
+namespace ExaminationSystem.Api.Features.Diplomas.ViewDiplomas
 {
     
         public class GetDiplomasHandler : IRequestHandler<GetDiplomasQuery, Result<PaginatedList<DiplomaDto>>>

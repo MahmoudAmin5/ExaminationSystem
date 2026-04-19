@@ -1,5 +1,5 @@
 ﻿using ExaminationSystem.Api.Extensions;
-using ExaminationSystem.Api.Features.Diplomas.DiplomasQueries;
+using ExaminationSystem.Api.Features.Diplomas.ViewDiplomas;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
