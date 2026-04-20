@@ -27,7 +27,6 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
         public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
@@ -36,7 +35,6 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
             CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .AsNoTracking()
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
         }
@@ -46,7 +44,6 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
             CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .AsNoTracking()
                 .FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
