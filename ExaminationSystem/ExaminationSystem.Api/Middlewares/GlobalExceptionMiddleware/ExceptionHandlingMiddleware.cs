@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+
 using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -35,13 +37,45 @@ namespace ExaminationSystem.Api.Middlewares.GlobalExceptionMiddleware
 
                 httpContext.Response.StatusCode = 499;
             }
-
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning("Validation failed for request. Path: {Path}", httpContext.Request.Path);
+                await HandleValidationExceptionAsync(httpContext, ex);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred. TraceId: {TraceId}", httpContext.TraceIdentifier);
                 await HandleExceptionAsync(httpContext, ex);
             }
         }
+        private async Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity; 
+           
+            var validationErrors = exception.Errors
+                .Select(e => new
+                {
+                    Field = e.PropertyName,
+                    Message = e.ErrorMessage
+                }).ToList();
+
+            var response = new
+            {
+                success = false,
+                data = (object?)null,
+                error = new
+                {
+                    code = "ValidationError",
+                    message = "One or more validation errors occurred.",
+                    details = validationErrors 
+                },
+                meta = new { traceId = context.TraceIdentifier }
+            };
+
+            await context.Response.WriteAsJsonAsync(response);
+        }
+
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
