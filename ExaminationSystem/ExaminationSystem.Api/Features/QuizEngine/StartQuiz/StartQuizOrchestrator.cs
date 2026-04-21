@@ -4,7 +4,6 @@ using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Queries;
 using ExaminationSystem.Api.Shared.Results;
 using MediatR;
-using System.Net.Quic;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz
 {
@@ -29,40 +28,51 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz
             var quiz = await _mediator.Send(
                 new GetPublishedQuizByIdQuery(request.QuizId), ct);
 
-            if (quiz is null)
-                return Result<StartQuizResponse>.Failure(
-                Error.NotFound("Quiz.NotFound", $"Quiz with ID {request.QuizId} not found"));
+            if (quiz.IsFailure)
+                return Result<StartQuizResponse>.Failure(quiz.Errors);
 
             var existingAttempt = await _mediator.Send(
                 new GetInProgressStudentAttemptQuery(request.StudentId, request.QuizId), ct);
 
-            if (existingAttempt is not null)
+            if (existingAttempt.IsSuccess)
                 return Result<StartQuizResponse>.Failure(
                Error.Conflict("QuizAttempt", "An attempt is already in progress for this quiz."));
 
             var attemptCount = await _mediator.Send(
                 new GetStudentAttemptCountQuery(request.StudentId, request.QuizId), ct);
 
-            if (attemptCount.Value >= quiz.Value.MaxAttempts)
+            if (attemptCount.IsFailure)
+                return Result<StartQuizResponse>.Failure(attemptCount.Errors);
+
+            if (quiz.Value.MaxAttempts.HasValue &&
+                attemptCount.Value >= quiz.Value.MaxAttempts.Value)
                 return Result<StartQuizResponse>.Failure(
                Error.Forbidden("Quiz.AttemptLimitReached", "Maximum attempt limit reached for this quiz."));
 
             var quizQuestions = await _mediator.Send(
                 new GetQuizQuestionsQuery(request.QuizId), ct);
 
+            if (quizQuestions.IsFailure)
+                return Result<StartQuizResponse>.Failure(quizQuestions.Errors);
 
             var attempt = await _mediator.Send(
                 new CreateQuizAttemptCommand(
-                    request.QuizId,
                     request.StudentId,
+                    request.QuizId,
                     quiz.Value.DurationMinutes
                     ), ct);
+
+            if (attempt.IsFailure)
+                return Result<StartQuizResponse>.Failure(attempt.Errors);
 
             var shuffleResult = await _mediator.Send(
                 new SaveShuffledQuestionsOrderCommand(
                     attempt.Value.AttemptId,
                     quizQuestions.Value.Questions,
                     quizQuestions.Value.Options), ct);
+
+            if (shuffleResult.IsFailure)
+                return Result<StartQuizResponse>.Failure(shuffleResult.Errors);
 
             await _unitOfWork.SaveChangesAsync(ct);
 
