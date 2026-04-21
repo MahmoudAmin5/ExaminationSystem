@@ -11,6 +11,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
 
         public static async Task SeedAsync(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)
         {
+            var studentId = Guid.Parse("C3333333-3333-3333-3333-333333333333");
 
             if (!await roleManager.RoleExistsAsync("Admin"))
                 await roleManager.CreateAsync(new IdentityRole<Guid> { Name = "Admin" });
@@ -35,6 +36,24 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
 
                 await userManager.CreateAsync(admin, "Admin@Secure671");
                 await userManager.AddToRoleAsync(admin, "Admin");
+            }
+
+            var studentEmail = "student.demo@examination.local";
+            if (await userManager.FindByEmailAsync(studentEmail) == null)
+            {
+                var student = new User
+                {
+                    Id = studentId,
+                    FullName = "Demo Student",
+                    UserName = "student.demo",
+                    Email = studentEmail,
+                    EmailConfirmed = true,
+                    Status = AccountStatus.Active,
+                    Role = UserRole.Student
+                };
+
+                await userManager.CreateAsync(student, "Student@Secure671");
+                await userManager.AddToRoleAsync(student, "Student");
             }
 
         }

@@ -12,6 +12,12 @@ namespace ExaminationSystem.Api.Features.Auth.Login
 {
     public class Login
     {
+        public class LoginRequestDto
+        {
+            public string Email { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
+
        
         public record LoginResponse(string AccessToken, string RefreshToken);
         public record LoginCommand(string Email, string Password) : IRequest<Result<LoginResponse>>;
