@@ -9,9 +9,9 @@ using static ExaminationSystem.Api.Features.Auth.Shared.Commands.GeneratePasswor
 
 namespace ExaminationSystem.Api.Features.Auth.ForgotPassword
 {
-    public record ForgotPasswordOrchestrator(string Email) : IRequest<Result>;
+    public record ForgotPasswordCommand(string Email) : IRequest<Result>;
 
-    public class ForgotPasswordOrchestratorHandler : IRequestHandler<ForgotPasswordOrchestrator, Result>
+    public class ForgotPasswordOrchestratorHandler : IRequestHandler<ForgotPasswordCommand, Result>
     {
         private readonly IMediator _mediator;
         private readonly IEmailService _emailService;
@@ -22,7 +22,7 @@ namespace ExaminationSystem.Api.Features.Auth.ForgotPassword
             _emailService = emailService;
         }
 
-        public async Task<Result> Handle(ForgotPasswordOrchestrator request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             
             var tokenResult = await _mediator.Send(new GeneratePasswordResetTokenCommand(request.Email), cancellationToken);

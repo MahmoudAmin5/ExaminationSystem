@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 namespace ExaminationSystem.Api.Features.Auth.Login
 {
-    public class LoginValidator : AbstractValidator<LoginOrchestrator>
+    public class LoginValidator : AbstractValidator<LoginCommand>
     {
         public LoginValidator()
         {

@@ -13,14 +13,14 @@ using static ExaminationSystem.Api.Features.Auth.Shared.Commands.ValidateUserCre
 
 namespace ExaminationSystem.Api.Features.Auth.Login
 {
-    public record LoginOrchestrator(string Email, string Password, string IpAddress) : IRequest<Result<LoginResponseDto>>;
-    public class LoginOrchestratorHandler : IRequestHandler<LoginOrchestrator, Result<LoginResponseDto>>
+    public record LoginCommand(string Email, string Password, string IpAddress) : IRequest<Result<LoginResponseDto>>;
+    public class LoginOrchestratorHandler : IRequestHandler<LoginCommand, Result<LoginResponseDto>>
     {
         private readonly IMediator _mediator;
         public LoginOrchestratorHandler(IMediator mediator) 
             => _mediator = mediator;
 
-        public async Task<Result<LoginResponseDto>> Handle(LoginOrchestrator request, CancellationToken ct)
+        public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken ct)
         {
             var userResult = await _mediator.Send(new ValidateUserCredentialsCommand(request.Email, request.Password), ct);
             if (userResult.IsFailure) return Result<LoginResponseDto>.Failure(userResult.Errors);

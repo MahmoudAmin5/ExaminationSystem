@@ -5,8 +5,8 @@ using static ExaminationSystem.Api.Features.Auth.Shared.Commands.CheckAndConsume
 
 namespace ExaminationSystem.Api.Features.Auth.VerifyOtp
 {
-    public record VerifyOtpOrchestrator(string Email, string Code) : IRequest<Result>;
-    public class VerifyOtpOrchestratorHandler : IRequestHandler<VerifyOtpOrchestrator, Result>
+    public record VerifyOtpCommand(string Email, string Code) : IRequest<Result>;
+    public class VerifyOtpOrchestratorHandler : IRequestHandler<VerifyOtpCommand, Result>
     {
         private readonly IMediator _mediator;
 
@@ -15,7 +15,7 @@ namespace ExaminationSystem.Api.Features.Auth.VerifyOtp
             _mediator = mediator;
         }
 
-        public async Task<Result> Handle(VerifyOtpOrchestrator request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
             
             var otpCheckResult = await _mediator.Send(new CheckAndConsumeOtpCommand(request.Email, request.Code), cancellationToken);

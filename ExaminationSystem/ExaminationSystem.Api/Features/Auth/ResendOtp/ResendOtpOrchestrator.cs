@@ -6,9 +6,9 @@ using MediatR;
 using static ExaminationSystem.Api.Features.Auth.Common.Commands.CreateOtp;
 using static ExaminationSystem.Api.Features.Auth.Shared.Commands.CheckResendOtpLimits;
 
-public record ResendOtpOrchestrator(string Email) : IRequest<Result>;
+public record ResendOtpCommand(string Email) : IRequest<Result>;
 
-public class ResendOtpOrchestratorHandler : IRequestHandler<ResendOtpOrchestrator, Result>
+public class ResendOtpOrchestratorHandler : IRequestHandler<ResendOtpCommand, Result>
 {
     private readonly IMediator _mediator; private readonly IEmailService _emailService;
     public ResendOtpOrchestratorHandler(IMediator mediator, IEmailService emailService)
@@ -16,7 +16,7 @@ public class ResendOtpOrchestratorHandler : IRequestHandler<ResendOtpOrchestrato
         _mediator = mediator;
         _emailService = emailService;
     }
-    public async Task<Result> Handle(ResendOtpOrchestrator request, CancellationToken ct)
+    public async Task<Result> Handle(ResendOtpCommand request, CancellationToken ct)
     {
         var checkLimit = await _mediator.Send(new CheckResendLimitAndInvalidateOldCommand(request.Email), ct);
 

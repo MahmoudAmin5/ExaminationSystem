@@ -2,7 +2,7 @@
 
 namespace ExaminationSystem.Api.Features.Auth.ResendOtp
 {
-    public class ResendOtpValidator : AbstractValidator<ResendOtpOrchestrator>
+    public class ResendOtpValidator : AbstractValidator<ResendOtpCommand>
     {
         public ResendOtpValidator()
         {

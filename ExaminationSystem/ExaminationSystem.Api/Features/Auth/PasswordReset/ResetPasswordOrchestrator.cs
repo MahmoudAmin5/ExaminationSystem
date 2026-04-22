@@ -10,9 +10,9 @@ using static ExaminationSystem.Api.Features.Auth.Shared.Commands.ValidateAndCons
 
 namespace ExaminationSystem.Api.Features.Auth.PasswordReset
 {
-        public record ResetPasswordOrchestrator(string Email, string Token, string NewPassword) : IRequest<Result>;
+        public record ResetPasswordCommand(string Email, string Token, string NewPassword) : IRequest<Result>;
 
-        public class ResetPasswordOrchestratorHandler : IRequestHandler<ResetPasswordOrchestrator, Result>
+        public class ResetPasswordOrchestratorHandler : IRequestHandler<ResetPasswordCommand, Result>
         {
             private readonly IMediator _mediator;
 
@@ -21,7 +21,7 @@ namespace ExaminationSystem.Api.Features.Auth.PasswordReset
                 _mediator = mediator;
             }
 
-            public async Task<Result> Handle(ResetPasswordOrchestrator request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
             {
               
                 var tokenValidationResult = await _mediator.Send(new ValidateAndConsumeResetTokenCommand(request.Email, request.Token), cancellationToken);

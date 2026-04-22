@@ -2,7 +2,7 @@
 
 namespace ExaminationSystem.Api.Features.Auth.Register
 {
-    public class RegisterUserValidator : AbstractValidator<RegisterUserOrchestrator>
+    public class RegisterUserValidator : AbstractValidator<RegisterUserCommand>
     {
         public RegisterUserValidator()
         {

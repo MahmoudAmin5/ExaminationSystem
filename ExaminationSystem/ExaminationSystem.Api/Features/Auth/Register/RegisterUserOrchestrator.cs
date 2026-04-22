@@ -13,14 +13,14 @@ using static ExaminationSystem.Api.Features.Auth.Common.Commands.CreateUser;
 namespace ExaminationSystem.Api.Features.Auth.Register
 {
       
-        public record RegisterUserOrchestrator(string Email, string Password, string FullName) : IRequest<Result<Guid>>;
+        public record RegisterUserCommand(string Email, string Password, string FullName) : IRequest<Result<Guid>>;
 
-        public class RegisterUserOrchestratorHandler : IRequestHandler<RegisterUserOrchestrator, Result<Guid>>
+        public class RegisterUserOrchestratorHandler : IRequestHandler<RegisterUserCommand, Result<Guid>>
         {
 
         private readonly IMediator _mediator; private readonly IEmailService _emailService;
         public RegisterUserOrchestratorHandler(IMediator mediator, IEmailService emailService) { _mediator = mediator; _emailService = emailService; } 
-        public async Task<Result<Guid>> Handle(RegisterUserOrchestrator request, CancellationToken ct)
+        public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken ct)
         {
             var userResult = await _mediator.Send(new CreateUserCommand(request.Email, request.Password, request.FullName), ct);
             if (userResult.IsFailure)
