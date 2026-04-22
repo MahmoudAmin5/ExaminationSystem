@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using static ExaminationSystem.Api.Features.Auth.PasswordReset.ResetPasswordpublic;
-
 namespace ExaminationSystem.Api.Features.Auth.PasswordReset
 {
     public class ResetPasswordValidator : AbstractValidator<ResetPasswordCommand>

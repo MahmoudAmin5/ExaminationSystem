@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using static ExaminationSystem.Api.Features.Auth.Login.Login;
-
 namespace ExaminationSystem.Api.Features.Auth.Login
 {
     public class LoginValidator : AbstractValidator<LoginCommand>

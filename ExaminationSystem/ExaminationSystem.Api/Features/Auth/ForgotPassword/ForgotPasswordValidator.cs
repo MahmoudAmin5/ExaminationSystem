@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using static ExaminationSystem.Api.Features.Auth.PasswordReset.ForgotPassword;
-
-namespace ExaminationSystem.Api.Features.Auth.PasswordReset
+namespace ExaminationSystem.Api.Features.Auth.ForgotPassword
 {
     public class ForgotPasswordValidator : AbstractValidator<ForgotPasswordCommand>
     {

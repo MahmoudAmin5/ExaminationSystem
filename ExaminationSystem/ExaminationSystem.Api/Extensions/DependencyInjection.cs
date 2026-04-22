@@ -39,8 +39,7 @@ namespace ExaminationSystem.Api.Extensions
 
             services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IValidator<AnswerQuestionCommand>, AnswerQuestionCommandValidator>();
-
+          
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<AttemptDeadlineFilter>();
