@@ -2,7 +2,7 @@
 
 namespace ExaminationSystem.Api.Features.Auth.VerifyOtp
 {
-    public class VerifyOtpValidator : AbstractValidator<VerifyOtpCommand>
+    public class VerifyOtpValidator : AbstractValidator<VerifyOtpOrchestrator>
     {
         public VerifyOtpValidator()
         {

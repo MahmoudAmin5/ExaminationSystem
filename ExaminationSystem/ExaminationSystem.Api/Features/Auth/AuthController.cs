@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using static ExaminationSystem.Api.Features.Auth.Login.Login;
 using static ExaminationSystem.Api.Features.Auth.PasswordReset.ForgotPassword;
 using static ExaminationSystem.Api.Features.Auth.PasswordReset.ResetPasswordpublic;
-using static ExaminationSystem.Api.Features.Auth.Register.RegisterUserCommand;
+using static ExaminationSystem.Api.Features.Auth.Register.RegisterUserOrchestrator;
 
 namespace ExaminationSystem.Api.Features.Auth
 {
@@ -25,23 +25,23 @@ namespace ExaminationSystem.Api.Features.Auth
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
+        public async Task<IActionResult> Register([FromBody] RegisterUserOrchestrator command)
         {
             var result = await _mediator.Send(command);
             return result.ToActionResult();
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpCommand command)
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpOrchestrator command)
         {
-            var result = await _mediator.Send(new VerifyOtpCommand(command.Email, command.Code));
+            var result = await _mediator.Send(new VerifyOtpOrchestrator(command.Email, command.Code));
             return result.ToActionResult();
         }
 
         [HttpPost("resend-otp")]
-        public async Task<IActionResult> ResendOtp([FromBody] ResendOtpCommand command)
+        public async Task<IActionResult> ResendOtp([FromBody] ResendOtpOrchestrator command)
         {
-            var result = await _mediator.Send(new ResendOtpCommand(command.Email));
+            var result = await _mediator.Send(new ResendOtpOrchestrator(command.Email));
             return result.ToActionResult();
         }
 
