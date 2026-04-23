@@ -64,15 +64,18 @@ namespace ExaminationSystem.Api.Features.QuizEngine
 
             return result.ToActionResult();
         }
-
+        [Authorize]
         [HttpGet("{attemptId:guid}/results")]
         [ProducesResponseType(typeof(AttemptResultDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetResults([FromRoute] Guid attemptId, CancellationToken cancellationToken)
         {
-            var requesterId = Guid.Parse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdClaim, out Guid requesterId))
+            {
+                return Unauthorized();
+            }
 
             var requesterRole = User.FindFirstValue(ClaimTypes.Role) ?? "Student";
 
