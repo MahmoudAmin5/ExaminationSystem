@@ -29,12 +29,13 @@ namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult
 
             if (!isOwner && !isAdmin) return Result<AttemptResultDto>.Failure(Error.Forbidden("QuizAttempt.ForbiddenAccess", "You do not have permission to view these results."));
 
-            if (attemptWithQuiz.Attempt.Status == AttemptStatus.InProgress.ToString()) return Result<AttemptResultDto>.Failure(Error.Forbidden(
+            if (attemptWithQuiz.Attempt.Status == AttemptStatus.InProgress.ToString()) 
+                return Result<AttemptResultDto>.Failure(Error.Forbidden(
                         "QuizAttempt.InProgress", "Results are not available until the attempt is submitted."));
 
             var answersDetail = await _mediator.Send(new GetAttemptAnswersDetailQuery(request.AttemptId, attemptWithQuiz.Attempt.QuizId), ct);
 
-            return ViewResultsResponseBuilder.Build(attemptWithQuiz, answersDetail);
+            return ViewResultsResponseBuilder.Build(attemptWithQuiz, answersDetail.Value);    
         }
     }
 }

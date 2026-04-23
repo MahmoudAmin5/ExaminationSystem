@@ -1,5 +1,6 @@
 ﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Data;
+using ExaminationSystem.Api.Features.QuizEngine.Shared.Queries;
 using ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos;
 using ExaminationSystem.Api.Shared.Results;
 using MediatR;
@@ -7,56 +8,47 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
 {
-    public record GetAttemptWithQuizQuery(Guid AttemptId) : IRequest<AttemptWithQuizDto?>;
+    public record GetAttemptWithQuizQuery(Guid AttemptId) : IRequest<AttemptWithQuizDto>;
     public class GetAttemptWithQuizQueryHandler
-    : IRequestHandler<GetAttemptWithQuizQuery, AttemptWithQuizDto?>
+    : IRequestHandler<GetAttemptWithQuizQuery, AttemptWithQuizDto>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public GetAttemptWithQuizQueryHandler(IUnitOfWork unitOfWork)
+        public GetAttemptWithQuizQueryHandler(IUnitOfWork unitOfWork , IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
-        public async Task<AttemptWithQuizDto?> Handle(GetAttemptWithQuizQuery request, CancellationToken cancellationToken)
+        public async Task<AttemptWithQuizDto> Handle(GetAttemptWithQuizQuery request, CancellationToken cancellationToken)
         {
-            var attempt = await _unitOfWork
-                .Repository<QuizAttempt, Guid>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    a => a.Id == request.AttemptId,
-                    cancellationToken);
+            var attempt = await _mediator.Send(new GetAttemptByIdQuery(request.AttemptId), cancellationToken);
 
-            if (attempt is null)
+            if (attempt.IsFailure)
                 return null;
 
-            var quiz = await _unitOfWork
-                .Repository<Quiz, Guid>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    q => q.Id == attempt.QuizId,
-                    cancellationToken);
+            var quiz = await _mediator.Send(new GetQuizByIdQuery(attempt.Value.QuizId), cancellationToken);
 
-            if (quiz is null)
+            if (quiz.IsFailure)
                 return null;
 
             return new AttemptWithQuizDto
             {
                 Attempt = new AttemptDto
                 {
-                    Id = attempt.Id,
-                    QuizId = attempt.QuizId,
-                    StudentId = attempt.StudentId,
-                    Status = attempt.Status.ToString(),
-                    Score = attempt.Score,
-                    Passed = attempt.Passed,
-                    TotalQuestions = quiz.Questions.Count,
-                    SubmittedAt = attempt.SubmittedAt
+                    Id = attempt.Value.Id,
+                    QuizId = attempt.Value.QuizId,
+                    StudentId = attempt.Value.StudentId,
+                    Status = attempt.Value.Status.ToString(),
+                    Score = attempt.Value.Score,
+                    Passed = attempt.Value.Passed,
+                    SubmittedAt = attempt.Value.SubmittedAt
                 },
                 Quiz = new QuizDto
                 {
-                    Id = quiz.Id,
-                    Title = quiz.Title
+                    Id = quiz.Value.Id,
+                    Title = quiz.Value.Title
                 }
             };
         }

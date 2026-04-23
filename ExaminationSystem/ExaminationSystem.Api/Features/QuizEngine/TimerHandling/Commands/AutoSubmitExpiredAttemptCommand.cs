@@ -43,6 +43,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Commands
                 .FindAsync(q => q.QuizId == attempt.QuizId, cancellationToken);
 
             var questionIds = questions.Select(q => q.Id).ToList();
+
             var correctOptions = await _unitOfWork.Repository<AnswerOption, Guid>()
                 .FindAsync(o => questionIds.Contains(o.QuestionId) && o.IsCorrect, cancellationToken);
 

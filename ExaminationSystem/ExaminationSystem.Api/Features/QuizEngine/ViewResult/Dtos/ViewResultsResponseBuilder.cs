@@ -46,7 +46,6 @@
                 QuizTitle = quiz.Title,
                 Score = attempt.Score ?? 0,
                 Passed = attempt.Passed ?? false,
-                TotalQuestions = attempt.TotalQuestions ?? 0,
                 CorrectCount = correctCount,            
                 Status = attempt.Status,
                 SubmittedAt = attempt.SubmittedAt,

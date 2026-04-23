@@ -1,6 +1,8 @@
 ﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Data;
+using ExaminationSystem.Api.Features.QuizEngine.Shared.Queries;
 using ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos;
+using ExaminationSystem.Api.Shared.Results;
 using MediatR;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
@@ -8,69 +10,43 @@ namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
     public record GetAttemptAnswersDetailQuery(
     Guid AttemptId,
     Guid QuizId
-) : IRequest<AttemptAnswersDetailDto>;
+) : IRequest<Result<AttemptAnswersDetailDto>>;
 
     public class GetAttemptAnswersDetailQueryHandler
-        : IRequestHandler<GetAttemptAnswersDetailQuery, AttemptAnswersDetailDto>
+        : IRequestHandler<GetAttemptAnswersDetailQuery, Result<AttemptAnswersDetailDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public GetAttemptAnswersDetailQueryHandler(IUnitOfWork unitOfWork)
+        public GetAttemptAnswersDetailQueryHandler(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
-        public async Task<AttemptAnswersDetailDto> Handle(
+        public async Task<Result<AttemptAnswersDetailDto>> Handle(
             GetAttemptAnswersDetailQuery request,
             CancellationToken cancellationToken)
         {
-           
-            var answers = await _unitOfWork
-                .Repository<AttemptAnswer, int>()
-                .FindAsync(
-                    a => a.AttemptId == request.AttemptId,
-                    cancellationToken);
 
+            var answersResult = await _mediator.Send(new GetAttemptAnswerQuery(request.AttemptId), cancellationToken);
+            if (answersResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(answersResult.Errors);
+
+           
+            var questionsResult = await _mediator.Send(new GetQuizQuestionsQuery(request.QuizId), cancellationToken);
+            if (questionsResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(questionsResult.Errors);
             
-            var questions = await _unitOfWork
-                .Repository<Question, Guid>()
-                .FindAsync(
-                    q => q.QuizId == request.QuizId,
-                    cancellationToken);
+            var questionIds = questionsResult.Value.Select(q => q.Id).ToList();
 
-           
-            var questionIds = questions.Select(q => q.Id).ToList();
-
-            var options = await _unitOfWork
-                .Repository<AnswerOption, Guid>()
-                .FindAsync(
-                    o => questionIds.Contains(o.QuestionId),
-                    cancellationToken);
-
-            return new AttemptAnswersDetailDto
+            var optionsResult = await _mediator.Send(new GetQuestionOptionsQuery(questionIds), cancellationToken);
+            if (optionsResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(optionsResult.Errors);
+            
+            return Result<AttemptAnswersDetailDto>.Success(new AttemptAnswersDetailDto
             {
-                Answers = answers.Select(a => new AnswerDetailDto
-                {
-                    QuestionId = a.QuestionId,
-                    SelectedOptionId = a.SelectedOptionId,
-                    IsCorrect = a.IsCorrect ?? false
-                }).ToList(),
-
-                Questions = questions.Select(q => new QuestionDetailDto
-                {
-                    Id = q.Id,
-                    Text = q.Text,
-                    Explanation = q.Explanation
-                }).ToList(),
-
-                Options = options.Select(o => new OptionDetailDto
-                {
-                    Id = o.Id,
-                    QuestionId = o.QuestionId,
-                    Text = o.Text,
-                    IsCorrect = o.IsCorrect
-                }).ToList()
-            };
+                Answers = answersResult.Value,
+                Questions = questionsResult.Value,
+                Options = optionsResult.Value
+            });
         }
     }
 }
