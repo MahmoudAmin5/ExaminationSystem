@@ -8,7 +8,6 @@
         public string Status { get; init; } = string.Empty;
         public decimal? Score { get; init; }
         public bool? Passed { get; init; }
-        public int? TotalQuestions { get; init; }
         public DateTime? SubmittedAt { get; init; }
     }
 }
