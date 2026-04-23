@@ -1,8 +1,7 @@
-﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
+using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Data;
 using ExaminationSystem.Api.Features.QuizEngine.Shared.Queries;
 using ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos;
-using ExaminationSystem.Api.Shared.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,5 +52,4 @@ namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
             };
         }
     }
-
 }
