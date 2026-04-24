@@ -6,20 +6,17 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
 {
     public class DataInitializer
     {
-        public static async Task SeedDiplomsAsync(IUnitOfWork unitOfWork)
+        public static async Task SeedDiplomasAsync(IUnitOfWork unitOfWork)
         {
             var diplomaRepo = unitOfWork.Repository<Diploma, Guid>();
-            var attemptRepo = unitOfWork.Repository<QuizAttempt, Guid>();
-            var enrollmentRepo = unitOfWork.Repository<Enrollment, int>();
-
             var webDevDiplomaId = Guid.Parse("D1111111-1111-1111-1111-111111111111");
-            var studentId = Guid.Parse("C3333333-3333-3333-3333-333333333333");
 
-            if (await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId)) return;
 
-            // ==========================================
+            var exists = await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId);
+            if (exists) return;
+
             // 1. PRE-DEFINE IDs FOR RELATIONSHIPS
-            // ==========================================
+            {
             var csharpQuizId = Guid.NewGuid();
 
             // Question 1 IDs
@@ -41,7 +38,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                 Title = "Full Stack Web Development",
                 Description = "Master HTML, CSS, JS, and .NET Core.",
                 Status = ContentStatus.Published,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNoww,
                 Quizzes = new List<Quiz>
                 {
                     new Quiz
@@ -130,4 +127,6 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             await unitOfWork.SaveChangesAsync();
         }
     }
+    }
+
 }
