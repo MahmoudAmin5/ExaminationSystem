@@ -29,6 +29,7 @@
   <ItemGroup>
     <Folder Include="BuildingBlocks\Exceptions\" />
     <Folder Include="BuildingBlocks\Common\" />
+    <Folder Include="Features\AdminManagement\Shard\Dtos\" />
     <Folder Include="Infrastructure\Identity\" />
     <Folder Include="Infrastructure\Services\" />
   </ItemGroup>
