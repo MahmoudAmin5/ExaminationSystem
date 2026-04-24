@@ -36,13 +36,14 @@ namespace ExaminationSystem.Api.Features.Diplomas.ViewDiplomas
             var passedQuizIds = await _mediator.Send(new GetStudentPassedQuizIdsQuery(studentId), ct);
 
             
-            var dtos = paginatedDiplomas.Items.Select(d => new DiplomaDto(
-                d.Id,
-                d.Title,
-                d.Description ?? "",
-                d.Quizzes.Count,
-                d.Quizzes.Count == 0 ? 0 : (double)d.Quizzes.Count(q => passedQuizIds.Contains(q.Id)) / d.Quizzes.Count * 100
-            )).ToList();
+            var dtos = paginatedDiplomas.Items.Select(d => new DiplomaDto
+            {
+                Id=d.Id,
+                Title=d.Title,
+                Description=d.Description ?? "",
+                QuizCount= d.Quizzes.Count,
+                StudentProgress =d.Quizzes.Count == 0 ? 0 : (double)d.Quizzes.Count(q => passedQuizIds.Contains(q.Id)) / d.Quizzes.Count * 100,
+            }).ToList();
 
             var result = new PaginatedList<DiplomaDto>(dtos, paginatedDiplomas.TotalCount, paginatedDiplomas.PageNumber, request.PageSize);
             return Result<PaginatedList<DiplomaDto>>.Success(result);

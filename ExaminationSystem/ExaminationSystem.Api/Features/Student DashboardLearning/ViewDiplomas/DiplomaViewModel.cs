@@ -1,6 +1,6 @@
-﻿namespace ExaminationSystem.Api.Features.Diplomas.ViewDiplomas
+﻿namespace ExaminationSystem.Api.Features.Student_DashboardLearning.ViewDiplomas
 {
-    public class DiplomaDto
+    public class DiplomaViewModel
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
