@@ -5,6 +5,6 @@
     string Title,
     string Description,
      int QuizzesCount,
-    double ProgressPercentage);
+    double StudentProgressPercentage);
 
 }
