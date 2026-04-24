@@ -15,35 +15,31 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             var exists = await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId);
             if (exists) return;
 
-            // 1. PRE-DEFINE IDs FOR RELATIONSHIPS
             {
             var csharpQuizId = Guid.NewGuid();
 
-            // Question 1 IDs
+            
             var q1Id = Guid.NewGuid();
             var q1CorrectOptionId = Guid.NewGuid();
             var q1WrongOptionId = Guid.NewGuid();
 
-            // Question 2 IDs
+          
             var q2Id = Guid.NewGuid();
             var q2CorrectOptionId = Guid.NewGuid();
             var q2WrongOptionId = Guid.NewGuid();
 
-            // ==========================================
-            // 2. BUILD THE DIPLOMA & QUIZZES
-            // ==========================================
             var diploma = new Diploma
             {
                 Id = webDevDiplomaId,
                 Title = "Full Stack Web Development",
                 Description = "Master HTML, CSS, JS, and .NET Core.",
                 Status = ContentStatus.Published,
-                CreatedAt = DateTime.UtcNoww,
+                CreatedAt = DateTime.UtcNow,
                 Quizzes = new List<Quiz>
                 {
                     new Quiz
                     {
-                        Id = csharpQuizId, // Using our variable!
+                        Id = csharpQuizId, 
                         Title = "C# Basics",
                         DurationMinutes = 30,
                         PassScore = 50,
@@ -53,7 +49,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                         {
                             new Question
                             {
-                                Id = q1Id, // Using our variable!
+                                Id = q1Id, 
                                 Text = "Which of the following is a Value Type in C#?",
                                 Explanation = "Integers are structs in C#, making them Value Types.",
                                 Options = new List<AnswerOption>
@@ -64,7 +60,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                             },
                             new Question
                             {
-                                Id = q2Id, // Using our variable!
+                                Id = q2Id, 
                                 Text = "What is the default access modifier for a class in C#?",
                                 Explanation = "If no access modifier is specified, a class defaults to internal.",
                                 Options = new List<AnswerOption>
@@ -79,17 +75,13 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             };
 
             diplomaRepo.Add(diploma);
-            enrollmentRepo.Add(new Enrollment { StudentId = studentId, DiplomaId = webDevDiplomaId });
-
-            // ==========================================
-            // 3. BUILD THE COMPLETED ATTEMPT
-            // ==========================================
+            
+         
             var attemptId = Guid.NewGuid();
             var attempt = new QuizAttempt
             {
                 Id = attemptId,
                 QuizId = csharpQuizId,
-                StudentId = studentId,
                 StartedAt = DateTime.UtcNow.AddMinutes(-25), // Started 25 mins ago
                 SubmittedAt = DateTime.UtcNow,               // Submitted right now
                 Deadline = DateTime.UtcNow.AddMinutes(5),    // They finished 5 mins early
@@ -119,11 +111,6 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                 }
             };
 
-            attemptRepo.Add(attempt);
-
-            // ==========================================
-            // 4. SAVE EVERYTHING TO SQL SERVER
-            // ==========================================
             await unitOfWork.SaveChangesAsync();
         }
     }
