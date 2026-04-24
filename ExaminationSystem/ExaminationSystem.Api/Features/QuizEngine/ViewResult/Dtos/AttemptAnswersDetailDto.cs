@@ -1,4 +1,7 @@
-﻿namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos
+﻿using ExaminationSystem.Api.Domain.Entities.Data;
+using ExaminationSystem.Api.Features.QuizEngine.Shared.Dtos;
+
+namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos
 {
     public record AnswerDetailDto
     {
@@ -24,8 +27,8 @@
 
     public record AttemptAnswersDetailDto
     {
-        public List<AnswerDetailDto> Answers { get; init; } = [];
-        public List<QuestionDetailDto> Questions { get; init; } = [];
-        public List<OptionDetailDto> Options { get; init; } = [];
+        public List<AttemptAnswerDto> Answers { get; init; } = [];
+        public List<QuizQuestionDto> Questions { get; init; } = [];
+        public List<QuestionOptionDto> Options { get; init; } = [];
     }
 }

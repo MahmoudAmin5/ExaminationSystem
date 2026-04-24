@@ -24,12 +24,12 @@ namespace ExaminationSystem.Api.Extensions
 
 
                 //Update-Database
-                await context.Database.MigrateAsync();
+                //await context.Database.MigrateAsync();
 
-                
+
                 await IdentitySeeder.SeedAsync(userManager, roleManager);
 
-              
+
                 await DataInitializer.SeedDiplomsAsync(unitOfWork);
             }
             
