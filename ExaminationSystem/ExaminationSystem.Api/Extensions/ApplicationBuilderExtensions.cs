@@ -29,8 +29,8 @@ namespace ExaminationSystem.Api.Extensions
 
                 await IdentitySeeder.SeedAsync(userManager, roleManager);
 
-
-                await DataInitializer.SeedDiplomsAsync(unitOfWork);
+              
+                await DataInitializer.SeedDiplomasAsync(unitOfWork);
             }
             
             catch (Exception ex)
