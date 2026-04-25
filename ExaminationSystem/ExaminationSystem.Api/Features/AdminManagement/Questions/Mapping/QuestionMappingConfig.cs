@@ -1,5 +1,4 @@
 ﻿using ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions;
-using ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions.Commands;
 using Mapster;
 
 namespace ExaminationSystem.Api.Features.AdminManagement.Questions.Mapping

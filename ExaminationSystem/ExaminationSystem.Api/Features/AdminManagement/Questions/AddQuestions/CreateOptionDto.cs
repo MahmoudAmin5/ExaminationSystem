@@ -1,4 +1,4 @@
-﻿namespace ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions.Commands
+﻿namespace ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions
 {
     public record CreateOptionDto
     (
