@@ -17,11 +17,11 @@ namespace ExaminationSystem.Api.Features.AdminManagement.Questions.UpdateQuestio
 
         public async Task<Result> Handle(UpdateQuestionOrchestrator request, CancellationToken token)
         {
-            var quizIdRes = await _mediator.Send(new GetQuestionQuizIdQuery(request.QuestionId), token);
-            if (quizIdRes.IsFailure)
-                return Result.Failure(quizIdRes.Errors);
+            var quizIdResult = await _mediator.Send(new GetQuestionQuizIdQuery(request.QuestionId), token);
+            if (quizIdResult.IsFailure)
+                return Result.Failure(quizIdResult.Errors);
 
-            var status = await _mediator.Send(new GetQuizStatusQuery(quizIdRes.Value), token);
+            var status = await _mediator.Send(new GetQuizStatusQuery(quizIdResult.Value), token);
             if (status.Value == "Published") 
                 return Result.Failure(Error.Conflict("Quiz.Published", "Cannot update published quiz."));
 
