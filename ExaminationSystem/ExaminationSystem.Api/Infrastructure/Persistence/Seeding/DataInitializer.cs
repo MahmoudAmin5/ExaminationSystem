@@ -11,35 +11,58 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
             var diplomaRepo = unitOfWork.Repository<Diploma, Guid>();
             var webDevDiplomaId = Guid.Parse("D1111111-1111-1111-1111-111111111111");
 
+            var quizRepo = unitOfWork.Repository<Quiz, Guid>();
+
+
+            var draftQuizId = Guid.Parse("B1111111-1111-1111-1111-111111111111");
+
+            if (await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId))
+            {
+                // لو الدبلومة موجودة، نتأكد بس إن الكويز الـ Draft موجود
+                if (!await quizRepo.AnyAsync(q => q.Id == draftQuizId))
+                {
+                    quizRepo.Add(new Quiz
+                    {
+                        Id = draftQuizId,
+                        DiplomaId = webDevDiplomaId,
+                        Title = "Advanced C# Patterns (Draft)",
+                        DurationMinutes = 60,
+                        PassScore = 75m,
+                        Status = ContentStatus.Draft,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    await unitOfWork.SaveChangesAsync();
+                }
+                return;
+            }
 
             var exists = await diplomaRepo.AnyAsync(d => d.Id == webDevDiplomaId);
             if (exists) return;
 
             {
-            var csharpQuizId = Guid.NewGuid();
+                var csharpQuizId = Guid.NewGuid();
+           
+                var q1Id = Guid.NewGuid();
+                var q1CorrectOptionId = Guid.NewGuid();
+                var q1WrongOptionId = Guid.NewGuid();
 
-            
-            var q1Id = Guid.NewGuid();
-            var q1CorrectOptionId = Guid.NewGuid();
-            var q1WrongOptionId = Guid.NewGuid();
 
-          
-            var q2Id = Guid.NewGuid();
-            var q2CorrectOptionId = Guid.NewGuid();
-            var q2WrongOptionId = Guid.NewGuid();
+                var q2Id = Guid.NewGuid();
+                var q2CorrectOptionId = Guid.NewGuid();
+                var q2WrongOptionId = Guid.NewGuid();
 
-            var diploma = new Diploma
-            {
-                Id = webDevDiplomaId,
-                Title = "Full Stack Web Development",
-                Description = "Master HTML, CSS, JS, and .NET Core.",
-                Status = ContentStatus.Published,
-                CreatedAt = DateTime.UtcNow,
-                Quizzes = new List<Quiz>
+                var diploma = new Diploma
+                {
+                    Id = webDevDiplomaId,
+                    Title = "Full Stack Web Development",
+                    Description = "Master HTML, CSS, JS, and .NET Core.",
+                    Status = ContentStatus.Published,
+                    CreatedAt = DateTime.UtcNow,
+                    Quizzes = new List<Quiz>
                 {
                     new Quiz
                     {
-                        Id = csharpQuizId, 
+                        Id = csharpQuizId,
                         Title = "C# Basics",
                         DurationMinutes = 30,
                         PassScore = 50,
@@ -49,7 +72,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                         {
                             new Question
                             {
-                                Id = q1Id, 
+                                Id = q1Id,
                                 Text = "Which of the following is a Value Type in C#?",
                                 Explanation = "Integers are structs in C#, making them Value Types.",
                                 Options = new List<AnswerOption>
@@ -60,7 +83,7 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                             },
                             new Question
                             {
-                                Id = q2Id, 
+                                Id = q2Id,
                                 Text = "What is the default access modifier for a class in C#?",
                                 Explanation = "If no access modifier is specified, a class defaults to internal.",
                                 Options = new List<AnswerOption>
@@ -72,46 +95,18 @@ namespace ExaminationSystem.Api.Infrastructure.Persistence.Seeding
                         }
                     }
                 }
-            };
+                };
 
-            diplomaRepo.Add(diploma);
-            
-         
-            var attemptId = Guid.NewGuid();
-            var attempt = new QuizAttempt
-            {
-                Id = attemptId,
-                QuizId = csharpQuizId,
-                StartedAt = DateTime.UtcNow.AddMinutes(-25), // Started 25 mins ago
-                SubmittedAt = DateTime.UtcNow,               // Submitted right now
-                Deadline = DateTime.UtcNow.AddMinutes(5),    // They finished 5 mins early
-                Status = AttemptStatus.Submitted,            // Ensure this matches your Enum!
-                Score = 50,                                  // They got 1 out of 2 right (50%)
-                Passed = true,
-                Answers = new List<AttemptAnswer>
-                {
-                    // Correct Answer
-                    new AttemptAnswer
-                    {
-                        AttemptId = attemptId,
-                        QuestionId = q1Id,
-                        SelectedOptionId = q1CorrectOptionId,
-                        IsCorrect = true,
-                        AnsweredAt = DateTime.UtcNow.AddMinutes(-20)
-                    },
-                    // Wrong Answer
-                    new AttemptAnswer
-                    {
-                        AttemptId = attemptId,
-                        QuestionId = q2Id,
-                        SelectedOptionId = q2WrongOptionId,
-                        IsCorrect = false,
-                        AnsweredAt = DateTime.UtcNow.AddMinutes(-10)
-                    }
-                }
-            };
 
-            await unitOfWork.SaveChangesAsync();
+
+             
+        
+        
+                diplomaRepo.Add(diploma);
+
+
+
+                await unitOfWork.SaveChangesAsync();
         }
     }
     }

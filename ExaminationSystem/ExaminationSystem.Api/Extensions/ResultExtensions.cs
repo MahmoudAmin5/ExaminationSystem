@@ -6,13 +6,16 @@ namespace ExaminationSystem.Api.Extensions;
 public static class ResultExtensions
 {
 
-    //GET DIPLOMAS , GET EXAMS , ...
 
+   
     public static IActionResult ToActionResult<T>(this Result<PaginatedList<T>> result)
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(new { success = true, data = result.Value!.Items,
+            return new OkObjectResult(new
+            {
+                success = true,
+                data = result.Value!.Items,
                 error = (object?)null,
                 meta = new
                 {
@@ -27,12 +30,15 @@ public static class ResultExtensions
         return CreateErrorResult(result.Errors);
     }
 
-    // LOGIN , GETBYID  , ...
+  
     public static IActionResult ToActionResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(new { success = true, data = result.Value,
+            return new OkObjectResult(new
+            {
+                success = true,
+                data = result.Value,
                 error = (object?)null,
                 meta = new { timestamp = DateTime.UtcNow }
             });
@@ -40,7 +46,27 @@ public static class ResultExtensions
 
         return CreateErrorResult(result.Errors);
     }
-    // Verify OTP , ...
+
+   
+    public static IActionResult ToCreatedActionResult<T>(this Result<T> result)
+    {
+        if (result.IsSuccess)
+        {
+            var response = new
+            {
+                success = true,
+                data = result.Value,
+                error = (object?)null,
+                meta = new { timestamp = DateTime.UtcNow }
+            };
+          
+            return new ObjectResult(response) { StatusCode = StatusCodes.Status201Created };
+        }
+
+        return CreateErrorResult(result.Errors);
+    }
+
+
     public static IActionResult ToActionResult(this Result result)
     {
         if (result.IsSuccess)
@@ -51,11 +77,11 @@ public static class ResultExtensions
         return CreateErrorResult(result.Errors);
     }
 
+  
     private static IActionResult CreateErrorResult(IReadOnlyCollection<Error> errors)
     {
         var firstError = errors.First();
 
-        
         var response = new
         {
             success = false,
@@ -67,12 +93,12 @@ public static class ResultExtensions
                 details = errors.Select(e => new { e.Code, e.Message }).ToList()
             },
             meta = new { timestamp = DateTime.UtcNow }
-        
         };
 
         return new ObjectResult(response)
         {
-            StatusCode = (int)firstError.Type 
+            StatusCode = (int)firstError.Type
         };
     }
+
 }
