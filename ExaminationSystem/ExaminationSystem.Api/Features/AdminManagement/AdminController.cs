@@ -4,6 +4,9 @@ using ExaminationSystem.Api.Features.AdminManagement.Create_UpdateQuiz.Requests;
 using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.Command;
 using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.ViewModels;
 using ExaminationSystem.Api.Features.AdminManagement.Publish_UnpublishQuiz.Command;
+using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.Queries;
+using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.Requests;
+using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.ViewModels;
 using ExaminationSystem.Api.Shared.Results;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -93,6 +96,37 @@ namespace ExaminationSystem.Api.Features.AdminManagement
             var result = await _mediator.Send(command, cancellationToken);
 
             return result.ToActionResult();
+        }
+
+        [HttpGet("attempts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetAttempts([FromQuery] GetAttemptsQueryParameters parameters, CancellationToken cancellationToken)
+        {
+            var query = new GetAttemptsQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+            if (!result.IsSuccess)
+            {
+                return result.ToActionResult();
+            }
+            var viewModels = result.Value!.Items.Select(dto => new AttemptListViewModel
+            {
+                AttemptId = dto.AttemptId,
+                StudentId = dto.StudentId,
+                StudentName = dto.StudentName,
+                QuizTitle = dto.QuizTitle,
+                Score = dto.Score,
+                Status = dto.Status,
+                SubmittedAt = dto.SubmittedAt
+            }).ToList();  
+            var paginatedViewModels = new PaginatedList<AttemptListViewModel>(
+                viewModels,
+                result.Value.TotalCount,
+                result.Value.PageNumber,
+                result.Value.PerPage
+            );
+            return Result<PaginatedList<AttemptListViewModel>>.Success(paginatedViewModels).ToActionResult();
         }
     }
 }
