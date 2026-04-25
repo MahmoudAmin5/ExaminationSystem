@@ -2,6 +2,7 @@
 using ExaminationSystem.Api.Domain.Entities;
 using ExaminationSystem.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
 namespace ExaminationSystem.Api.Infrastructure.Repositories
@@ -70,6 +71,32 @@ namespace ExaminationSystem.Api.Infrastructure.Repositories
 
         public void AddRange(IEnumerable<T> entities) => _dbSet.AddRange(entities);
 
+        public void SaveInclude(T entity, params string[] includedProperties)
+        {
+          
+            var localEntity = _dbSet.Local.FirstOrDefault(e => EqualityComparer<TId>.Default.Equals(e.Id, entity.Id));
+
+            EntityEntry<T> entry;
+
+            if (localEntity == null)
+            {
+                _dbSet.Attach(entity);
+                entry = _context.Entry(entity);
+            }
+            else
+            {
+                entry = _context.Entry(localEntity);
+                entry.CurrentValues.SetValues(entity);
+            }
+
+            foreach (var property in entry.Properties)
+            {
+                if (property.Metadata.IsPrimaryKey())
+                    continue;
+
+                property.IsModified = includedProperties.Contains(property.Metadata.Name);
+            }
+        }
         public void Update(T entity) => _dbSet.Update(entity);
 
         public void UpdateRange(IEnumerable<T> entities) => _dbSet.UpdateRange(entities);

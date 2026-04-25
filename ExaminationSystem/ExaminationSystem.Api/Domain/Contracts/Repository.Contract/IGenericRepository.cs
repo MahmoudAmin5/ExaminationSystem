@@ -26,6 +26,7 @@ namespace ExaminationSystem.Api.Domain.Contracts.Repository.Contract
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
 
+        void SaveInclude(T entity, params string[] includedProperties);
         void Update(T entity);
         void UpdateRange(IEnumerable<T> entities);
 
