@@ -5,6 +5,7 @@ using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.Command;
 using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.ViewModels;
 using ExaminationSystem.Api.Features.AdminManagement.Publish_UnpublishQuiz.Command;
 using ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions;
+using ExaminationSystem.Api.Features.AdminManagement.Questions.DeleteQuestion;
 using ExaminationSystem.Api.Features.AdminManagement.Questions.UpdateQuestion;
 using ExaminationSystem.Api.Shared.Results;
 using Mapster;
@@ -124,6 +125,12 @@ namespace ExaminationSystem.Api.Features.AdminManagement
             var result = await _mediator.Send(command, token);
             return result.ToActionResult();
         }
-
+        [HttpDelete("questions/{id:guid}")]
+        public async Task<IActionResult> DeleteQuestion(Guid id, CancellationToken token)
+        {
+          
+            var result = await _mediator.Send(new DeleteQuestionOrchestrator(id), token);
+            return result.ToActionResult();
+        }
     }
 }
