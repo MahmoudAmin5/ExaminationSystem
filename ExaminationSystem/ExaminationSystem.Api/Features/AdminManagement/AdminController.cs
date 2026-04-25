@@ -4,10 +4,14 @@ using ExaminationSystem.Api.Features.AdminManagement.Create_UpdateQuiz.Requests;
 using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.Command;
 using ExaminationSystem.Api.Features.AdminManagement.CreateQuiz.ViewModels;
 using ExaminationSystem.Api.Features.AdminManagement.Publish_UnpublishQuiz.Command;
+using ExaminationSystem.Api.Features.AdminManagement.Questions.AddQuestions;
+using ExaminationSystem.Api.Features.AdminManagement.Questions.DeleteQuestion;
+using ExaminationSystem.Api.Features.AdminManagement.Questions.UpdateQuestion;
 using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.Queries;
 using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.Requests;
 using ExaminationSystem.Api.Features.AdminManagement.ViewAllAttempts.ViewModels;
 using ExaminationSystem.Api.Shared.Results;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -87,7 +91,7 @@ namespace ExaminationSystem.Api.Features.AdminManagement
         }
 
         [HttpPatch("quizzes/{id:guid}/unpublish")]
-        [ProducesResponseType( StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> UnpublishQuiz([FromRoute] Guid id, CancellationToken cancellationToken)
@@ -97,6 +101,39 @@ namespace ExaminationSystem.Api.Features.AdminManagement
 
             return result.ToActionResult();
         }
+    
+
+        [HttpPost("quizzes/{quiz_id}/questions")]
+        public async Task<IActionResult> AddQuestion(Guid quiz_id, [FromBody] CreateQuestionViewModel request, CancellationToken token)
+        {
+
+            var command = request.Adapt<AddQuestionOrchestrator>() with { QuizId = quiz_id };
+
+            var result = await _mediator.Send(command, token);
+
+            if (result.IsFailure) return result.ToActionResult();
+
+
+            return Result<object>.Success(new
+            {
+                question_id = result.Value
+            })
+                .ToCreatedActionResult();
+        }
+
+        [HttpPut("questions/{id}")]
+        public async Task<IActionResult> UpdateQuestion(Guid id, [FromBody] UpdateQuestionViewModel request, CancellationToken token)
+        {
+            var command = request.Adapt<UpdateQuestionOrchestrator>() with { QuestionId = id };
+            var result = await _mediator.Send(command, token);
+            return result.ToActionResult();
+        }
+        [HttpDelete("questions/{id:guid}")]
+        public async Task<IActionResult> DeleteQuestion(Guid id, CancellationToken token)
+        {
+          
+            var result = await _mediator.Send(new DeleteQuestionOrchestrator(id), token);
+            return result.ToActionResult();
 
         [HttpGet("attempts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
