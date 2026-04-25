@@ -21,7 +21,6 @@ namespace ExaminationSystem.Api.Features.AdminManagement
     {
         private readonly IMediator _mediator;
 
-       
         public AdminController(IMediator mediator)
         {
             _mediator = mediator;
@@ -42,13 +41,10 @@ namespace ExaminationSystem.Api.Features.AdminManagement
 
 
             var response = new QuizCreatedViewModel
-        [HttpPost("quizzes/{quiz_id}/questions")]
-        public async Task<IActionResult> AddQuestion(Guid quiz_id, [FromBody] CreateQuestionViewModel request, CancellationToken token)
             {
                 Id = result.Value
             };
 
-            var command = request.Adapt<AddQuestionOrchestrator>() with { QuizId = quiz_id };
 
             return Result<QuizCreatedViewModel>.Success(response).ToActionResult();
         }
@@ -86,26 +82,39 @@ namespace ExaminationSystem.Api.Features.AdminManagement
         {
             var command = new PublishQuizCommand(id);
             var result = await _mediator.Send(command, cancellationToken);
-            var result = await _mediator.Send(command, token);
-            if (result.IsFailure) 
             return result.ToActionResult();
         }
 
         [HttpPatch("quizzes/{id:guid}/unpublish")]
-        [ProducesResponseType( StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> UnpublishQuiz([FromRoute] Guid id, CancellationToken cancellationToken)
-            var responseData = new 
         {
-                question_id = result.Value 
-            };
-            var successResult = Result<object>.Success(responseData);
             var command = new UnpublishQuizCommand(id);
             var result = await _mediator.Send(command, cancellationToken);
 
-            return successResult.ToCreatedActionResult();
             return result.ToActionResult();
         }
+    
+
+        [HttpPost("quizzes/{quiz_id}/questions")]
+        public async Task<IActionResult> AddQuestion(Guid quiz_id, [FromBody] CreateQuestionViewModel request, CancellationToken token)
+        {
+
+            var command = request.Adapt<AddQuestionOrchestrator>() with { QuizId = quiz_id };
+
+            var result = await _mediator.Send(command, token);
+
+            if (result.IsFailure) return result.ToActionResult();
+
+
+            return Result<object>.Success(new
+            {
+                question_id = result.Value
+            })
+                .ToCreatedActionResult();
+        }
+
     }
 }
