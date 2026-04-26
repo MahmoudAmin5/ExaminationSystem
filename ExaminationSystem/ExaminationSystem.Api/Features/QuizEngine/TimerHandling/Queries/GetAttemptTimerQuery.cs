@@ -19,23 +19,33 @@ namespace ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Queries
         }
         public async Task<Result<AttemptTimerDto>> Handle(GetAttemptTimerQuery request, CancellationToken cancellationToken)
         {
-            var attempt = await _unitOfWork.Repository<QuizAttempt, Guid>().AsNoTracking()
-                .FirstOrDefaultAsync(a => a.Id == request.AttemptId && a.StudentId == request.StudentId, cancellationToken);
-            if (attempt is null) return Result<AttemptTimerDto>.Failure(Error.NotFound("QuizAttempt.NotFound", $"Quiz attempt with ID {request.AttemptId} not found for student {request.StudentId}"));
-           
-            if (attempt.Status != AttemptStatus.InProgress)
-                return Result<AttemptTimerDto>.Failure(Error.Conflict("QuizAttempt.NotAvailable","This attempt is no longer in progress."));
-           
-              var secondsRemaining = Math.Max(0, (int)(attempt.Deadline - DateTime.UtcNow).TotalSeconds);
-             
-            return Result<AttemptTimerDto>.Success(new AttemptTimerDto
-              {
-                  AttemptId = attempt.Id,
-                  SecondsReamning = DateTime.UtcNow.AddSeconds(secondsRemaining),
-                  Deadline = attempt.Deadline,
-                  IsExpired = secondsRemaining <= 0
-              });
+            var now = DateTime.UtcNow;
+            var attemptData = await _unitOfWork.Repository<QuizAttempt, Guid>()
+                .AsNoTracking()
+                .Where(a => a.Id == request.AttemptId && a.StudentId == request.StudentId)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Status,
+                    a.Deadline
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
+            if (attemptData is null)
+                return Result<AttemptTimerDto>.Failure(Error.NotFound("QuizAttempt.NotFound", $"Quiz attempt with ID {request.AttemptId} not found."));
+
+            if (attemptData.Status != AttemptStatus.InProgress)
+                return Result<AttemptTimerDto>.Failure(Error.Conflict("QuizAttempt.NotAvailable", "This attempt is no longer in progress."));
+            
+            var secondsRemaining = Math.Max(0, (int)(attemptData.Deadline - now).TotalSeconds);
+
+            return Result<AttemptTimerDto>.Success(new AttemptTimerDto
+            {
+                AttemptId = attemptData.Id,
+                SecondsRemaining = secondsRemaining, 
+                Deadline = attemptData.Deadline,
+                IsExpired = secondsRemaining <= 0
+            });
         }
     }
 }
