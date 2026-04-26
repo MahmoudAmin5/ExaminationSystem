@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
 {
-    public record SaveShuffledQuestionsOrderCommand (Guid AttemptId, IReadOnlyList<Question> Questions,IReadOnlyList<AnswerOption> Options):
-        IRequest<Result<ShuffleResult>>;
+    public record SaveShuffledQuestionsOrderCommand(
+        Guid AttemptId,
+        IReadOnlyList<StartQuizQuestionDto> Questions) : IRequest<Result<ShuffleResult>>;
+
     public class SaveShuffledQuestionsOrderCommandHandler : IRequestHandler<SaveShuffledQuestionsOrderCommand, Result<ShuffleResult>>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -18,6 +20,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
         {
             _unitOfWork = unitOfWork;
         }
+
         public Task<Result<ShuffleResult>> Handle(SaveShuffledQuestionsOrderCommand request, CancellationToken cancellationToken)
         {
             var shuffledQuestions = Shuffle(request.Questions.ToList());
@@ -37,11 +40,8 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
                     DisplayOrder = i
                 });
 
-                var questionOptions = request.Options
-                    .Where(o => o.QuestionId == question.Id)
-                    .ToList();
+                var shuffledOptions = Shuffle(question.Options.ToList());
 
-                var shuffledOptions = Shuffle(questionOptions);
                 var resultOptions = new List<ShuffledOptionDto>();
 
                 for (var j = 0; j < shuffledOptions.Count; j++)
@@ -86,5 +86,4 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Commands
             return list;
         }
     }
-    
 }

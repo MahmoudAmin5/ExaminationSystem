@@ -19,22 +19,25 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Queries
         }
         public async Task<Result<QuizAttemptDto>> Handle(GetInProgressStudentAttemptQuery request, CancellationToken cancellationToken)
         {
-            var inProgressAttempt = await _unitOfWork.Repository<QuizAttempt, Guid>()
+            var response = await _unitOfWork.Repository<QuizAttempt, Guid>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.StudentId == request.StudentId && a.QuizId == request.QuizId && a.Status == AttemptStatus.InProgress, cancellationToken);
-            
-            if (inProgressAttempt == null) return Result<QuizAttemptDto>.Failure(Error.NotFound("In-ProgressAttempts.NotFound","In-progress attempt not found"));
-            
-            var response = new QuizAttemptDto
-            {
-                AttemptId = inProgressAttempt.Id,
-                Status = inProgressAttempt.Status,
-                StartedAt = inProgressAttempt.StartedAt,
-                Deadline = inProgressAttempt.Deadline
+                .Where(a => a.StudentId == request.StudentId && a.QuizId == request.QuizId && a.Status == AttemptStatus.InProgress)
+                .Select(a => new QuizAttemptDto
+                {
+                    AttemptId = a.Id,
+                    Status = a.Status,
+                    StartedAt = a.StartedAt,
+                    Deadline = a.Deadline
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            };
+            if (response == null)
+            {
+                return Result<QuizAttemptDto>.Failure(Error.NotFound("In-ProgressAttempts.NotFound", "In-progress attempt not found"));
+            }
 
             return Result<QuizAttemptDto>.Success(response);
         }
     }
 }
+   
