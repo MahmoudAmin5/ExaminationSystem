@@ -101,7 +101,7 @@ namespace ExaminationSystem.Api.Features.AdminManagement
 
             return result.ToActionResult();
         }
-    
+
 
         [HttpPost("quizzes/{quiz_id}/questions")]
         public async Task<IActionResult> AddQuestion(Guid quiz_id, [FromBody] CreateQuestionViewModel request, CancellationToken token)
@@ -131,39 +131,40 @@ namespace ExaminationSystem.Api.Features.AdminManagement
         [HttpDelete("questions/{id:guid}")]
         public async Task<IActionResult> DeleteQuestion(Guid id, CancellationToken token)
         {
-          
+
             var result = await _mediator.Send(new DeleteQuestionOrchestrator(id), token);
             return result.ToActionResult();
+        }
 
-        [HttpGet("attempts")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> GetAttempts([FromQuery] GetAttemptsQueryParameters parameters, CancellationToken cancellationToken)
-        {
-            var query = new GetAttemptsQuery(parameters);
-            var result = await _mediator.Send(query, cancellationToken);
-            if (!result.IsSuccess)
+            [HttpGet("attempts")]
+            [ProducesResponseType(StatusCodes.Status200OK)]
+            [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+            [ProducesResponseType(StatusCodes.Status403Forbidden)]
+            public async Task<IActionResult> GetAttempts([FromQuery] GetAttemptsQueryParameters parameters, CancellationToken cancellationToken)
             {
-                return result.ToActionResult();
+                var query = new GetAttemptsQuery(parameters);
+                var result = await _mediator.Send(query, cancellationToken);
+                if (!result.IsSuccess)
+                {
+                    return result.ToActionResult();
+                }
+                var viewModels = result.Value!.Items.Select(dto => new AttemptListViewModel
+                {
+                    AttemptId = dto.AttemptId,
+                    StudentId = dto.StudentId,
+                    StudentName = dto.StudentName,
+                    QuizTitle = dto.QuizTitle,
+                    Score = dto.Score,
+                    Status = dto.Status,
+                    SubmittedAt = dto.SubmittedAt
+                }).ToList();
+                var paginatedViewModels = new PaginatedList<AttemptListViewModel>(
+                    viewModels,
+                    result.Value.TotalCount,
+                    result.Value.PageNumber,
+                    result.Value.PerPage
+                );
+                return Result<PaginatedList<AttemptListViewModel>>.Success(paginatedViewModels).ToActionResult();
             }
-            var viewModels = result.Value!.Items.Select(dto => new AttemptListViewModel
-            {
-                AttemptId = dto.AttemptId,
-                StudentId = dto.StudentId,
-                StudentName = dto.StudentName,
-                QuizTitle = dto.QuizTitle,
-                Score = dto.Score,
-                Status = dto.Status,
-                SubmittedAt = dto.SubmittedAt
-            }).ToList();  
-            var paginatedViewModels = new PaginatedList<AttemptListViewModel>(
-                viewModels,
-                result.Value.TotalCount,
-                result.Value.PageNumber,
-                result.Value.PerPage
-            );
-            return Result<PaginatedList<AttemptListViewModel>>.Success(paginatedViewModels).ToActionResult();
         }
     }
-}

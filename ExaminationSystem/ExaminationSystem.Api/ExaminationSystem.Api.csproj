@@ -30,6 +30,7 @@
     <Folder Include="BuildingBlocks\Exceptions\" />
     <Folder Include="BuildingBlocks\Common\" />
     <Folder Include="Features\AdminManagement\Shard\Dtos\" />
+    <Folder Include="Features\QuizEngine\TimerHandling\Commands\" />
     <Folder Include="Infrastructure\Identity\" />
     <Folder Include="Infrastructure\Services\" />
   </ItemGroup>
