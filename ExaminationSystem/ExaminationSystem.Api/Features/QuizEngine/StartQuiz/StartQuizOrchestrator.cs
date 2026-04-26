@@ -24,55 +24,32 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz
 
         public async Task<Result<StartQuizResponse>> Handle( StartQuizCommand request,CancellationToken ct)
         {
-           
-            var quiz = await _mediator.Send(
-                new GetPublishedQuizByIdQuery(request.QuizId), ct);
 
-            if (quiz.IsFailure)
-                return Result<StartQuizResponse>.Failure(quiz.Errors);
+            var quiz = await _mediator.Send(new GetPublishedQuizByIdQuery(request.QuizId), ct);
+            if (quiz.IsFailure) return Result<StartQuizResponse>.Failure(quiz.Errors);
 
-            var existingAttempt = await _mediator.Send(
-                new GetInProgressStudentAttemptQuery(request.StudentId, request.QuizId), ct);
-
+            var existingAttempt = await _mediator.Send(new GetInProgressStudentAttemptQuery(request.StudentId, request.QuizId), ct);
             if (existingAttempt.IsSuccess)
-                return Result<StartQuizResponse>.Failure(
-               Error.Conflict("QuizAttempt", "An attempt is already in progress for this quiz."));
+                return Result<StartQuizResponse>.Failure(Error.Conflict("QuizAttempt", "An attempt is already in progress for this quiz."));
 
-            var attemptCount = await _mediator.Send(
-                new GetStudentAttemptCountQuery(request.StudentId, request.QuizId), ct);
+            var attemptCount = await _mediator.Send(new GetStudentAttemptCountQuery(request.StudentId, request.QuizId), ct);
+            if (attemptCount.IsFailure) return Result<StartQuizResponse>.Failure(attemptCount.Errors);
 
-            if (attemptCount.IsFailure)
-                return Result<StartQuizResponse>.Failure(attemptCount.Errors);
+            if (quiz.Value.MaxAttempts.HasValue && attemptCount.Value >= quiz.Value.MaxAttempts.Value)
+                return Result<StartQuizResponse>.Failure(Error.Forbidden("Quiz.AttemptLimitReached", "Maximum attempt limit reached for this quiz."));
 
-            if (quiz.Value.MaxAttempts.HasValue &&
-                attemptCount.Value >= quiz.Value.MaxAttempts.Value)
-                return Result<StartQuizResponse>.Failure(
-               Error.Forbidden("Quiz.AttemptLimitReached", "Maximum attempt limit reached for this quiz."));
+            var quizData = await _mediator.Send(new GetStartQuizQuestionsQuery(request.QuizId), ct);
+            if (quizData.IsFailure) return Result<StartQuizResponse>.Failure(quizData.Errors);
 
-            var quizQuestions = await _mediator.Send(
-                new GetQuizQuestionsQuery(request.QuizId), ct);
-
-            if (quizQuestions.IsFailure)
-                return Result<StartQuizResponse>.Failure(quizQuestions.Errors);
-
-            var attempt = await _mediator.Send(
-                new CreateQuizAttemptCommand(
-                    request.StudentId,
-                    request.QuizId,
-                    quiz.Value.DurationMinutes
-                    ), ct);
-
-            if (attempt.IsFailure)
-                return Result<StartQuizResponse>.Failure(attempt.Errors);
+            var attempt = await _mediator.Send(new CreateQuizAttemptCommand(request.StudentId, request.QuizId, quiz.Value.DurationMinutes), ct);
+            if (attempt.IsFailure) return Result<StartQuizResponse>.Failure(attempt.Errors);
 
             var shuffleResult = await _mediator.Send(
                 new SaveShuffledQuestionsOrderCommand(
                     attempt.Value.AttemptId,
-                    quizQuestions.Value.Questions,
-                    quizQuestions.Value.Options), ct);
+                    quizData.Value.Questions), ct);
 
-            if (shuffleResult.IsFailure)
-                return Result<StartQuizResponse>.Failure(shuffleResult.Errors);
+            if (shuffleResult.IsFailure) return Result<StartQuizResponse>.Failure(shuffleResult.Errors);
 
             await _unitOfWork.SaveChangesAsync(ct);
 
@@ -80,8 +57,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz
                 quiz,
                 attempt,
                 shuffleResult,
-                quizQuestions.Value.Questions,
-                quizQuestions.Value.Options);
+                quizData.Value.Questions);
         }
     }
 }

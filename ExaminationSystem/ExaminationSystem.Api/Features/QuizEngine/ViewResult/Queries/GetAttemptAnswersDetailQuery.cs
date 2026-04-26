@@ -1,9 +1,13 @@
 ﻿using ExaminationSystem.Api.Domain.Contracts.Repository.Contract;
 using ExaminationSystem.Api.Domain.Entities.Data;
+using ExaminationSystem.Api.Features.QuizEngine.Shared.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.Shared.Queries;
 using ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos;
 using ExaminationSystem.Api.Shared.Results;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
 {
@@ -28,25 +32,47 @@ namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Queries
             GetAttemptAnswersDetailQuery request,
             CancellationToken cancellationToken)
         {
+                var response = await _unitOfWork.Repository<QuizAttempt, Guid>()
+                    .AsNoTracking() 
+                    .Where(a => a.Id == request.AttemptId && a.QuizId == request.QuizId)
+                    .Select(a => new AttemptAnswersDetailDto
+                    {
+                        AttemptId = a.Id,
 
-            var answersResult = await _mediator.Send(new GetAttemptAnswerQuery(request.AttemptId), cancellationToken);
-            if (answersResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(answersResult.Errors);
+                        ReviewedQuestions = a.Quiz.Questions.Select(q => new ReviewedQuestionDto
+                        {
+                            QuestionId = q.Id,
+                            Text = q.Text,
+                            Explanation = q.Explanation,
 
-           
-            var questionsResult = await _mediator.Send(new GetQuizQuestionsQuery(request.QuizId), cancellationToken);
-            if (questionsResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(questionsResult.Errors);
-            
-            var questionIds = questionsResult.Value.Select(q => q.Id).ToList();
+                            Options = q.Options.Select(o => new ReviewedOptionDto
+                            {
+                                OptionId = o.Id,
+                                Text = o.Text,
+                                IsCorrect = o.IsCorrect
+                            }).ToList(),
 
-            var optionsResult = await _mediator.Send(new GetQuestionOptionsQuery(questionIds), cancellationToken);
-            if (optionsResult.IsFailure) return Result<AttemptAnswersDetailDto>.Failure(optionsResult.Errors);
-            
-            return Result<AttemptAnswersDetailDto>.Success(new AttemptAnswersDetailDto
-            {
-                Answers = answersResult.Value,
-                Questions = questionsResult.Value,
-                Options = optionsResult.Value
-            });
+                          
+                            StudentAnswer = a.Answers
+                                .Where(ans => ans.QuestionId == q.Id)
+                                .Select(ans => new StudentAnswerDto
+                                {
+                                    SelectedOptionId = ans.SelectedOptionId,
+                                    IsCorrect = ans.IsCorrect 
+                                })
+                                .FirstOrDefault()
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+               
+                if (response is null)
+                {
+                    return Result<AttemptAnswersDetailDto>.Failure(
+                        Error.NotFound("Attempt.NotFound", "The specified quiz attempt could not be found."));
+                }
+
+                return Result<AttemptAnswersDetailDto>.Success(response);
+            }
         }
     }
-}

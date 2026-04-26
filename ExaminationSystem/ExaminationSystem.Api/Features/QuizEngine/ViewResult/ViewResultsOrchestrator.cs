@@ -24,18 +24,17 @@ namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult
 
             if (attemptWithQuiz is null) return Result<AttemptResultDto>.Failure(Error.NotFound("QuizAttempt", $"QuizAttempt {request.AttemptId} not found."));
 
-            var isOwner = attemptWithQuiz.Attempt.StudentId == request.RequesterId;
+            var isOwner = attemptWithQuiz.Value.Attempt.StudentId == request.RequesterId;
             var isAdmin = request.RequesterRole == "Admin";
 
             if (!isOwner && !isAdmin) return Result<AttemptResultDto>.Failure(Error.Forbidden("QuizAttempt.ForbiddenAccess", "You do not have permission to view these results."));
 
-            if (attemptWithQuiz.Attempt.Status == AttemptStatus.InProgress.ToString()) 
+            if (attemptWithQuiz.Value.Attempt.Status == AttemptStatus.InProgress.ToString()) 
                 return Result<AttemptResultDto>.Failure(Error.Forbidden(
                         "QuizAttempt.InProgress", "Results are not available until the attempt is submitted."));
 
-            var answersDetail = await _mediator.Send(new GetAttemptAnswersDetailQuery(request.AttemptId, attemptWithQuiz.Attempt.QuizId), ct);
-
-            return ViewResultsResponseBuilder.Build(attemptWithQuiz, answersDetail.Value);    
+            var answersDetail = await _mediator.Send(new GetAttemptAnswersDetailQuery(request.AttemptId, attemptWithQuiz.Value.Attempt.QuizId), ct);    
+            return ViewResultsResponseBuilder.Build(attemptWithQuiz.Value, answersDetail.Value);    
         }
     }
 }

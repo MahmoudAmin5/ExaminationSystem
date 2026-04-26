@@ -3,7 +3,7 @@
     public class AttemptTimerDto
     {
         public Guid AttemptId { get; set; }
-        public DateTime SecondsReamning { get; set; }
+        public int SecondsRemaining { get; set; }
         public DateTime Deadline { get; init; }
         public bool IsExpired { get; init; }
     }

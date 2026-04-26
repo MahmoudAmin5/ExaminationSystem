@@ -5,50 +5,58 @@ namespace ExaminationSystem.Api.Features.QuizEngine.StartQuiz.Dtos
 {
     public static class StartQuizResponseBuilder
     {
-        public static StartQuizResponse Build(
+      
+        public static Result<StartQuizResponse> Build(
             Result<QuizDto> quiz,
             Result<QuizAttemptDto> attempt,
             Result<ShuffleResult> shuffleResult,
-            IReadOnlyList<Question> originalQuestions,
-            IReadOnlyList<AnswerOption> originalOptions)
+            IReadOnlyList<StartQuizQuestionDto> originalQuestions)
         {
-            return new StartQuizResponse
+            var questionsDict = originalQuestions.ToDictionary(q => q.Id);
+
+            var finalQuestions = shuffleResult.Value!.Questions
+                .OrderBy(sq => sq.DisplayOrder)
+                .Select(sq =>
+                {
+                    var originalQuestion = questionsDict[sq.QuestionId];
+                    var optionsDict = originalQuestion.Options.ToDictionary(o => o.Id);
+
+                    return new QuestionDto
+                    {
+                        QuestionId = sq.QuestionId,
+                        Text = originalQuestion.Text,
+                        DisplayOrder = sq.DisplayOrder,
+
+                        Options = sq.Options
+                            .OrderBy(so => so.DisplayOrder)
+                            .Select(so =>
+                            {
+                                var originalOption = optionsDict[so.OptionId];
+
+
+                                return new OptionDto
+                                {
+                                    OptionId = so.OptionId,
+                                    Text = originalOption.Text,
+                                    DisplayOrder = so.DisplayOrder,
+                                };
+                            }).ToList()
+                    };
+                }).ToList();
+
+            var response = new StartQuizResponse
             {
-                AttemptId = attempt.Value.AttemptId,
-                QuizId = quiz.Value.Id,
+                AttemptId = attempt.Value!.AttemptId,
+                QuizId = quiz.Value!.Id,
                 Title = quiz.Value.Title,
                 DurationMinutes = quiz.Value.DurationMinutes,
                 StartedAt = attempt.Value.StartedAt,
                 Deadline = attempt.Value.Deadline,
-                TotalQuestions = shuffleResult.Value.Questions.Count,
-                Questions = shuffleResult.Value.Questions
-                    .OrderBy(sq => sq.DisplayOrder)
-                    .Select(sq =>
-                    {
-                        var originalQuestion = originalQuestions
-                            .First(q => q.Id == sq.QuestionId);
-
-                        return new QuestionDto
-                        {
-                            QuestionId = sq.QuestionId,
-                            Text = originalQuestion.Text,
-                            Options = sq.Options
-                                .OrderBy(so => so.DisplayOrder)
-                                .Select(so =>
-                                {
-                                    var originalOption = originalOptions
-                                        .First(o => o.Id == so.OptionId);
-
-                                    return new OptionDto
-                                    {
-                                        OptionId = so.OptionId,
-                                        Text = originalOption.Text
- 
-                                    };
-                                }).ToList()
-                        };
-                    }).ToList()
+                TotalQuestions = finalQuestions.Count,
+                Questions = finalQuestions
             };
+
+            return Result<StartQuizResponse>.Success(response);
         }
     }
 }

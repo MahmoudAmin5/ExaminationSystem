@@ -49,8 +49,7 @@ namespace ExaminationSystem.Api.Features.QuizEngine
 
         
         [HttpGet("{attemptId:guid}/timer")]
-        [ServiceFilter(typeof(AttemptDeadlineFilter))]
-        [Authorize(Roles = "Student")]
+        [Authorize]
         [ProducesResponseType(typeof(AttemptTimerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

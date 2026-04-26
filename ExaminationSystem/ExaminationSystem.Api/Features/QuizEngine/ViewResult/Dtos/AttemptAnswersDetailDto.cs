@@ -3,32 +3,42 @@ using ExaminationSystem.Api.Features.QuizEngine.Shared.Dtos;
 
 namespace ExaminationSystem.Api.Features.QuizEngine.ViewResult.Dtos
 {
-    public record AnswerDetailDto
-    {
-        public Guid QuestionId { get; init; }
-        public Guid? SelectedOptionId { get; init; }
-        public bool IsCorrect { get; init; }
-    }
-
-    public record QuestionDetailDto
-    {
-        public Guid Id { get; init; }
-        public string Text { get; init; } = string.Empty;
-        public string? Explanation { get; init; }
-    }
-
-    public record OptionDetailDto
-    {
-        public Guid Id { get; init; }
-        public Guid QuestionId { get; init; }
-        public string Text { get; init; } = string.Empty;
-        public bool IsCorrect { get; init; }
-    }
-
     public record AttemptAnswersDetailDto
     {
-        public List<AttemptAnswerDto> Answers { get; init; } = [];
-        public List<QuizQuestionDto> Questions { get; init; } = [];
-        public List<QuestionOptionDto> Options { get; init; } = [];
+        public Guid AttemptId { get; init; }
+        public decimal TotalScore { get; init; } 
+        public IReadOnlyList<ReviewedQuestionDto> ReviewedQuestions { get; init; } = [];
+    }
+
+   
+    public record ReviewedQuestionDto
+    {
+        public Guid QuestionId { get; init; }
+        public string Text { get; init; } = string.Empty;
+        public string? Explanation { get; init; }
+
+     
+        public IReadOnlyList<ReviewedOptionDto> Options { get; init; } = [];
+
+       
+        public StudentAnswerDto? StudentAnswer { get; init; }
+    }
+
+   
+    public record ReviewedOptionDto
+    {
+        public Guid OptionId { get; init; }
+        public string Text { get; init; } = string.Empty;
+
+        
+        public bool IsCorrect { get; init; }
+    }
+
+    
+    public record StudentAnswerDto
+    {
+        public Guid? SelectedOptionId { get; init; }
+        public bool? IsCorrect { get; init; }
     }
 }
+
