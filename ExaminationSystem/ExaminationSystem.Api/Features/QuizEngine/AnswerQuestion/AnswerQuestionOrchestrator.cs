@@ -1,7 +1,6 @@
 ﻿using ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion.Commands;
 using ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion.Dtos;
 using ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion.Queries;
-using ExaminationSystem.Api.Features.QuizEngine.TimerHandling.Commands;
 using ExaminationSystem.Api.Shared.Results;
 using FluentValidation;
 using MediatR;
@@ -40,12 +39,12 @@ namespace ExaminationSystem.Api.Features.QuizEngine.AnswerQuestion
             if (attemptValidation.IsFailure)
             {
                 var firstError = attemptValidation.Errors.FirstOrDefault();
-                if (firstError?.Code == "Attempt.Expired")
-                {
-                    await _mediator.Send(
-                        new AutoSubmitExpiredAttemptCommand(request.AttemptId),cancellationToken);
-                    return Result<AnswerQuestionResponseDto>.Failure(Error.Gone("Attempt.AutoSubmitted","Quiz time has expired. Your attempt has been auto-submitted."));
-                }
+                //if (firstError?.Code == "Attempt.Expired")
+                //{
+                //    await _mediator.Send(
+                //        new AutoSubmitExpiredAttemptCommand(request.AttemptId),cancellationToken);
+                //    return Result<AnswerQuestionResponseDto>.Failure(Error.Gone("Attempt.AutoSubmitted","Quiz time has expired. Your attempt has been auto-submitted."));
+                //}
                 return Result<AnswerQuestionResponseDto>.Failure(attemptValidation.Errors);
             }
             var result = await _mediator.Send(
