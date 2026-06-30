@@ -1,107 +1,74 @@
-OnlineExam API
-A comprehensive and robust Online Exam System built with .NET 8 Web API. This application follows Clean Architecture principles and implements Vertical Slice Architecture with CQRS pattern to ensure scalability, maintainability, and performance.
+# 🎓 OnlineExam API
 
-🚀 Features
-🔐 Authentication & Authorization
-JWT Authentication: Secure login and registration.
-Identity Management: Role-based access control (Admin/User).
-Account Recovery: Forgot password, reset password, email verification.
-📚 Exam Management
-CRUD Operations: Create, update, delete, and list exams.
-Exam Logic: Start exam attempts, timed exams, and auto-submission.
-Categorization: Organize exams by categories.
-❓ Question Bank
-Question Management: Add, update, and remove questions for exams.
-Types: Support for various question types (implied by architecture).
-📊 Dashboard & Analytics
-Admin Dashboard: Statistics on exams, categories, and user activity.
-Performance: View most active exams and categories.
-📝 User Results
-Attempt Tracking: Store user answers and calculate scores.
-Detailed Reports: Review answers and performance after exam completion.
-🛠 Tech Stack
-Framework: .NET 8.0
-Database: SQL Server (via Entity Framework Core)
-Caching: Redis (StackExchange.Redis)
-Architecture Patterns:
-CQRS (using MediatR)
-Vertical Slice Architecture
-Repository & Unit of Work Pattern
-Validation: FluentValidation
-Mapping: AutoMapper
-Logging: Serilog
-Documentation: Swagger / OpenAPI
-Email: MailKit / MimeKit
-📂 Project Structure
-The project is organized by features (Vertical Slices) rather than technical layers:
+![.NET Core](https://img.shields.io/badge/.NET%208.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
+A comprehensive and robust Online Exam System built with **.NET 8 Web API**. This application strictly follows **Clean Architecture** principles and implements **Vertical Slice Architecture** alongside the **CQRS pattern** to ensure superior scalability, maintainability, and performance.
+
+---
+
+## 🚀 Features
+
+### 🔐 Authentication & Authorization
+* **JWT Authentication:** Secure login, registration, and token validation.
+* **Identity Management:** Robust role-based access control (Admin/User).
+* **Account Recovery:** Secure forgot password flow, password resets, and email verification.
+
+### 📚 Exam Management
+* **CRUD Operations:** Create, update, delete, and list exams.
+* **Exam Logic:** Engine to handle starting exam attempts, managing timed exams, and auto-submission.
+* **Categorization:** Organize and filter exams by distinct categories.
+
+### ❓ Question Bank
+* **Question Management:** Dynamically add, update, and remove questions linked to specific exams.
+* **Flexible Types:** Architecture supports various question types and formats.
+
+### 📊 Dashboard & Analytics
+* **Admin Dashboard:** High-level statistics on exams, categories, and system-wide user activity.
+* **Performance Metrics:** View most active exams, popular categories, and engagement trends.
+
+### 📝 User Results
+* **Attempt Tracking:** Securely store user answers and automatically calculate final scores.
+* **Detailed Reports:** Allow users to review their submitted answers and performance metrics post-exam.
+
+---
+
+## 🛠 Tech Stack
+
+* **Framework:** .NET 8.0
+* **Database:** SQL Server (via Entity Framework Core)
+* **Caching:** Redis (StackExchange.Redis)
+* **Architecture Patterns:**
+  * CQRS (via [MediatR](https://github.com/jbogard/MediatR))
+  * Vertical Slice Architecture
+  * Repository & Unit of Work Pattern
+* **Validation:** FluentValidation
+* **Object Mapping:** AutoMapper
+* **Logging:** Serilog
+* **API Documentation:** Swagger / OpenAPI
+* **Email Services:** MailKit / MimeKit
+
+---
+
+## 📂 Project Structure
+
+This project is organized by features (**Vertical Slices**) rather than traditional technical layers, keeping related logic cohesive and easy to navigate:
+
+```text
 OnlineExam/
-├── Domain/                 # Core Entities and Interfaces
-├── Features/               # Feature Slices (Command, Query, Endpoint)
+├── Domain/                 # Core Entities, Enums, and Interfaces
+├── Features/               # Feature Slices (Commands, Queries, Endpoints)
 │   ├── Accounts/           # Authentication & User Management
 │   ├── Categories/         # Exam Categories
-│   ├── Dashboard/          # Admin Stats
-│   ├── Exams/              # Exam Logic
-│   ├── Profile/            # User Profile
-│   ├── Questions/          # Question Management
-│   └── UserAnswers/        # Grading & Results
+│   ├── Dashboard/          # Admin Stats & Analytics
+│   ├── Exams/              # Exam Logic & Lifecycle
+│   ├── Profile/            # User Profile Management
+│   ├── Questions/          # Question Bank Management
+│   └── UserAnswers/        # Grading & Result Generation
 ├── Infrastructure/         # DB Context, Repositories, External Services
-├── Middlewares/            # Custom Middlewares (Error Handling, Transaction, etc.)
+├── Middlewares/            # Custom Middlewares (Error Handling, Transactions, etc.)
 ├── Migrations/             # EF Core Migrations
-├── Shared/                 # Common DTOs, Responses, Helpers
+├── Shared/                 # Common DTOs, Standard Responses, and Helpers
 └── Program.cs              # App Entry Point & Service Configuration
-⚙️ Getting Started
-Prerequisites
-.NET 8.0 SDK
-SQL Server
-Redis (Optional, but recommended if caching is enabled)
-Installation
-Clone the repository
-
-git clone https://github.com/your-username/OnlineExam.git
-cd OnlineExam
-Configure Application Settings Update appsettings.json with your local configuration:
-
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=.;Database=OnlineExam_DB;Integrated Security=True;TrustServerCertificate=True"
-  },
-  "JWT": {
-    "Issuer": "your_issuer",
-    "Audience": "your_audience",
-    "Secretkey": "your_super_secret_key_must_be_long_enough",
-    "ExpiryInMinutes": 60
-  },
-  "EmailSettings": {
-    "SmtpServer": "smtp.gmail.com",
-    "SenderEmail": "your-email@gmail.com",
-    "Password": "your-app-password"
-  }
-}
-Run Migrations Apply database migrations to create the schema:
-
-dotnet ef database update
-Run the Application
-
-dotnet run
-Access Documentation Once running, navigate to the Swagger UI to explore endpoints:
-
-https://localhost:7251/swagger/index.html
-(Port may vary based on your launch settings)
-
-🧪 API Endpoints Overview
-Feature	Method	Endpoint	Description
-Auth	POST	/api/accounts/register	Register a new user
-Auth	POST	/api/accounts/login	Login and get JWT
-Exams	GET	/api/exams	List all available exams
-Exams	POST	/api/exams	Create a new exam (Admin)
-Exams	POST	/api/exams/start/{id}	Start an exam attempt
-Exams	POST	/api/exams/submit	Submit exam answers
-(See Swagger for the full list of endpoints)
-
-🤝 Contributing
-Fork the repository.
-Create a new feature branch (git checkout -b feature/AmazingFeature).
-Commit your changes (git commit -m 'Add some AmazingFeature').
-Push to the branch (git push origin feature/AmazingFeature).
-Open a Pull Request.
