@@ -1,6 +1,6 @@
 # 🎓 OnlineExam API
 
-![.NET Core](https://img.shields.io/badge/.NET%208.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![.NET Core](https://img.shields.io/badge/.NET%2010.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
@@ -37,7 +37,7 @@ A comprehensive and robust Online Exam System built with **.NET 8 Web API**. Thi
 
 ## 🛠 Tech Stack
 
-* **Framework:** .NET 8.0
+* **Framework:** .NET 10.0
 * **Database:** SQL Server (via Entity Framework Core)
 * **Caching:** Redis (StackExchange.Redis)
 * **Architecture Patterns:**
